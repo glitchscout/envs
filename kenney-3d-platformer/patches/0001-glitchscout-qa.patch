@@ -1,0 +1,79 @@
+diff --git a/objects/coin.gd b/objects/coin.gd
+index d3f3ec1..3ffcb65 100644
+--- a/objects/coin.gd
++++ b/objects/coin.gd
+@@ -3,6 +3,15 @@ extends Area3D
+ var time := 0.0
+ var grabbed := false
+ 
++
++# Glitchscout QA: coins are interactables, collected by touching them.
++func _ready():
++	add_to_group("glitchscout_interactable")
++
++
++func glitchscout_observe() -> Dictionary:
++	return {"type": "coin", "state": "collected" if grabbed else "available", "enabled": not grabbed}
++
+ # Collecting coins
+ 
+ func _on_body_entered(body):
+diff --git a/project.godot b/project.godot
+index f193d13..0204e16 100644
+--- a/project.godot
++++ b/project.godot
+@@ -25,6 +25,7 @@ config/icon="res://icon.png"
+ [autoload]
+ 
+ Audio="*res://scripts/audio.gd"
++Glitchscout="*res://addons/glitchscout/glitchscout.gd"
+ 
+ [display]
+ 
+@@ -37,10 +38,22 @@ window/stretch/aspect="expand"
+ 
+ movie_writer/movie_file="C:/Users/Kenney/Desktop/video-footage.avi"
+ 
++[editor_plugins]
++
++enabled=PackedStringArray("res://addons/glitchscout/plugin.cfg")
++
+ [filesystem]
+ 
+ import/blender/enabled=false
+ 
++[glitchscout]
++
++; Glitchscout QA: the movement actions as one 2D axis (negative x, positive x, negative y, positive y).
++axes={
++"move": ["move_left", "move_right", "move_forward", "move_back"]
++}
++events=PackedStringArray("coin_collected", "player_fell")
++
+ [input]
+ 
+ move_right={
+diff --git a/scripts/player.gd b/scripts/player.gd
+index a583f96..1cf350c 100644
+--- a/scripts/player.gd
++++ b/scripts/player.gd
+@@ -56,6 +56,7 @@ func _physics_process(delta):
+ 	# Falling/respawning
+ 
+ 	if position.y < -10:
++		_glitchscout_event("player_fell", {})
+ 		get_tree().reload_current_scene()
+ 
+ 	# Animation for scale (jumping and landing)
+@@ -161,3 +162,11 @@ func collect_coin():
+ 	coins += 1
+ 
+ 	coin_collected.emit(coins)
++	_glitchscout_event("coin_collected", {"coins": coins})
++
++
++# Glitchscout QA: game events, through the node so a build without the SDK still runs.
++func _glitchscout_event(event_name: String, data: Dictionary) -> void:
++	var gs := get_node_or_null("/root/Glitchscout")
++	if gs:
++		gs.event(event_name, data)
