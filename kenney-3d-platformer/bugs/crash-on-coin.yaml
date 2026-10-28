@@ -1,0 +1,6 @@
+category: crash
+synthetic: true
+description: the game crashes (OS.crash) right after the player picks up a coin. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/coins.feature:3
+    status: crashed
