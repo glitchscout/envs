@@ -13,11 +13,20 @@ platforms, camera) that builds in seconds and behaves almost deterministically.
   - `bugs/crash-on-coin`: the game crashes right after a coin is picked up; the coin test must end `crashed`.
   - `bugs/coin-script-error`: picking up a coin calls a method the player does not have, so a script error is
     logged on every pickup; the coin test must end `failed` at "no script errors should be logged".
+  - `bugs/crash-on-double-jump`: the game crashes when the player jumps a second time in the air; the jump test must
+    end `crashed`.
+  - `bugs/landing-script-error`: landing after a jump calls a method the player does not have, so a script error is
+    logged on every landing; the jump test must end `failed`.
 
 ```bash
 gscout env run kenney-3d-platformer
 gscout env run kenney-3d-platformer --bug crash-on-coin
 gscout env run kenney-3d-platformer --bug coin-script-error
+gscout env run kenney-3d-platformer --bug crash-on-double-jump
+gscout env run kenney-3d-platformer --bug landing-script-error
 ```
+
+`qa/steps/game.yaml` adds "the player taps {action}", a press that releases itself: the built-in "presses" holds the
+button down, so a second press of a held button is not a new press.
 
 Godot (the version in `env.yaml`) must be on `PATH` as `godot`.

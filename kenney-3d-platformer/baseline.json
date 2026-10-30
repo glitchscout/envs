@@ -1,4 +1,5 @@
 {
   "qa/features/coins.feature:3": "passed",
+  "qa/features/jump.feature:3": "passed",
   "qa/features/smoke.feature:4": "passed"
 }

@@ -1,0 +1,11 @@
+diff --git a/scripts/player.gd b/scripts/player.gd
+--- a/scripts/player.gd
++++ b/scripts/player.gd
+@@ -153,6 +153,7 @@
+ 		jump_single = false;
+ 		jump_double = true;
+ 	else:
++		OS.crash("seeded bug crash-on-double-jump (synthetic)")
+ 		jump_double = false;
+ 
+ # Collecting coins

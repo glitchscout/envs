@@ -1,0 +1,6 @@
+category: crash
+synthetic: true
+description: the game crashes (OS.crash) when the player jumps a second time in the air. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/jump.feature:3
+    status: crashed
