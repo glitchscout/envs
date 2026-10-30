@@ -1,0 +1,6 @@
+category: script_error
+synthetic: true
+description: picking up a coin calls a method the player does not have, so a script error is logged on every pickup and the rest of the pickup (the sound, hiding the coin, marking it grabbed) never runs. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/coins.feature:3
+    status: failed
