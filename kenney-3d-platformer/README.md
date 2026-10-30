@@ -9,12 +9,15 @@ platforms, camera) that builds in seconds and behaves almost deterministically.
 - **Integration (`patches/0001-glitchscout-qa.patch`):** enables the Glitchscout SDK, declares the movement
   axis and the game's events (`coin_collected`, `player_fell`), sends them from the player, and makes coins
   observable interactables.
-- **Seeded bug (`bugs/crash-on-coin`):** synthetic, ours, not an upstream defect. The game crashes right
-  after a coin is picked up; the coin test must end `crashed`.
+- **Seeded bugs:** synthetic, ours, not upstream defects.
+  - `bugs/crash-on-coin`: the game crashes right after a coin is picked up; the coin test must end `crashed`.
+  - `bugs/coin-script-error`: picking up a coin calls a method the player does not have, so a script error is
+    logged on every pickup; the coin test must end `failed` at "no script errors should be logged".
 
 ```bash
 gscout env run kenney-3d-platformer
 gscout env run kenney-3d-platformer --bug crash-on-coin
+gscout env run kenney-3d-platformer --bug coin-script-error
 ```
 
 Godot (the version in `env.yaml`) must be on `PATH` as `godot`.
