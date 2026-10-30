@@ -1,0 +1,6 @@
+# Game-specific steps (declarative, no code).
+# A tap is a press that releases itself. The built-in "presses" holds the button down until it is released, so a
+# second "presses" is not a new press and a jump cannot be repeated with it.
+- step: the player taps {action}
+  kind: when
+  compiles_to: { scripted: [ { press: { action: "{action}", hold_ticks: 2 } } ] }

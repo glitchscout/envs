@@ -1,0 +1,12 @@
+diff --git a/scripts/player.gd b/scripts/player.gd
+--- a/scripts/player.gd
++++ b/scripts/player.gd
+@@ -68,6 +68,8 @@
+ 	if is_on_floor() and gravity > 2 and !previously_floored:
+ 		model.scale = Vector3(1.25, 0.75, 1.25)
+ 		Audio.play("res://sounds/land.ogg")
++		var landing_fx: Variant = self # seeded bug landing-script-error (synthetic): the player has no such method
++		landing_fx.play_landing_thud()
+ 
+ 	previously_floored = is_on_floor()
+ 

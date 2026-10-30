@@ -1,0 +1,6 @@
+category: script_error
+synthetic: true
+description: landing after a jump calls a method the player does not have, so a script error is logged on every landing. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/jump.feature:3
+    status: failed
