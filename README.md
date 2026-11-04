@@ -38,6 +38,9 @@ launch: "{build}/game.x86_64 --fixed-fps 60 -- --glitchscout-endpoint={endpoint}
 copied into the checkout (to `sdk.into`, default `sdk.path`) before the patches are applied, so the patches
 only touch the game.
 
+A game that keeps assets in Git LFS must have a `mirror`: `gscout` refuses to build it otherwise, so CI never spends
+the upstream project's LFS quota. Its objects are kept in the build cache, and `git-lfs` must be installed.
+
 A build is cached by the hash of its inputs: the source and pin, every patch's content, the seeded bug, the
 engine, the SDK's resolved commit, the build command and the platform. When none of them change, the cached
 build is reused and nothing is cloned or rebuilt.
