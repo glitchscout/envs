@@ -1,0 +1,166 @@
+diff --git a/addons/glitchscout_qa/glitchscout_qa.gd b/addons/glitchscout_qa/glitchscout_qa.gd
+new file mode 100644
+index 00000000..1481e3b1
+--- /dev/null
++++ b/addons/glitchscout_qa/glitchscout_qa.gd
+@@ -0,0 +1,36 @@
++# SPDX-License-Identifier: MPL-2.0
++extends Node
++## Glitchscout QA: turns the game's own signals into test events, so the patches to upstream files stay small.
++## Ships in test builds only. Every event goes through the SDK's node, so the game runs the same without it.
++
++var _player: Player
++
++
++func _ready() -> void:
++	DialogueManager.dialogue_started.connect(func(_resource: Variant) -> void: _event("dialogue_started"))
++	DialogueManager.dialogue_ended.connect(func(_resource: Variant) -> void: _event("dialogue_ended"))
++	GameState.player_changed.connect(_on_player_changed)
++	get_tree().scene_changed.connect(_on_scene_changed)
++
++
++func _on_player_changed(_old: PlayerState, _new: PlayerState) -> void:
++	if GameState.quest:
++		_event("quest_started", {"quest": GameState.quest.quest.resource_path})
++
++
++func _on_scene_changed() -> void:
++	var player := get_tree().get_first_node_in_group("player") as Player
++	if player and player != _player:
++		_player = player
++		player.mode_changed.connect(_on_player_mode_changed)
++
++
++func _on_player_mode_changed(mode: Player.Mode) -> void:
++	if mode == Player.Mode.DEFEATED:
++		_event("player_defeated")
++
++
++func _event(event_name: String, data: Dictionary = {}) -> void:
++	var gs := get_node_or_null("/root/Glitchscout")
++	if gs:
++		gs.event(event_name, data)
+diff --git a/project.godot b/project.godot
+index a46fbbe9..eb6b6746 100644
+--- a/project.godot
++++ b/project.godot
+@@ -40,6 +40,8 @@ HUD="*uid://cfcgrfvtn04yp"
+ AspectRatioDebugger="*res://scenes/globals/aspect_ratio_debugger/aspect_ratio_debugger.tscn"
+ MouseManager="*res://scenes/globals/mouse_manager/mouse_manager.tscn"
+ PhantomCameraManager="*uid://duq6jhf6unyis"
++Glitchscout="*res://addons/glitchscout/glitchscout.gd"
++GlitchscoutQA="*res://addons/glitchscout_qa/glitchscout_qa.gd"
+ 
+ [debug]
+ 
+@@ -75,7 +77,7 @@ movie_writer/movie_file="user://recording.ogv"
+ 
+ [editor_plugins]
+ 
+-enabled=PackedStringArray("res://addons/dialogue_manager/plugin.cfg", "res://addons/git_lfs_checker/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/sprite_frames_exported_textures/plugin.cfg", "res://addons/storyquest_bootstrap/plugin.cfg", "res://addons/threadbare_credits/plugin.cfg", "res://addons/threadbare_editor/plugin.cfg", "res://addons/threadbare_git_describe/plugin.cfg", "res://addons/threadbare_project_settings/plugin.cfg")
++enabled=PackedStringArray("res://addons/dialogue_manager/plugin.cfg", "res://addons/glitchscout/plugin.cfg", "res://addons/git_lfs_checker/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/sprite_frames_exported_textures/plugin.cfg", "res://addons/storyquest_bootstrap/plugin.cfg", "res://addons/threadbare_credits/plugin.cfg", "res://addons/threadbare_editor/plugin.cfg", "res://addons/threadbare_git_describe/plugin.cfg", "res://addons/threadbare_project_settings/plugin.cfg")
+ 
+ [file_customization]
+ 
+@@ -100,6 +102,14 @@ hook_listener=""
+ 
+ theme/custom="uid://cvitou84ni7qe"
+ 
++[glitchscout]
++
++; Glitchscout QA: the movement actions as one 2D axis (negative x, positive x, negative y, positive y).
++axes={
++"move": ["move_left", "move_right", "move_up", "move_down"]
++}
++events=PackedStringArray("dialogue_started", "dialogue_ended", "quest_started", "player_defeated", "interaction_started", "item_collected", "game_saved")
++
+ [input]
+ 
+ ui_accept={
+diff --git a/scenes/game_elements/props/collectible_item/components/collectible_item.gd b/scenes/game_elements/props/collectible_item/components/collectible_item.gd
+index abb2fac6..79a2c384 100644
+--- a/scenes/game_elements/props/collectible_item/components/collectible_item.gd
++++ b/scenes/game_elements/props/collectible_item/components/collectible_item.gd
+@@ -115,6 +115,7 @@ func _on_interacted(player: Player, _from_right: bool) -> void:
+ 	await animation_player.animation_finished
+ 
+ 	GameState.quest.inventory.add_collected_item(item)
++	interact_area._glitchscout_event("item_collected", {"item": item.resource_path})
+ 
+ 	if collected_dialogue:
+ 		DialogueManager.show_dialogue_balloon(collected_dialogue, dialogue_title, [self, player])
+diff --git a/scenes/game_elements/props/interact_area/interact_area.gd b/scenes/game_elements/props/interact_area/interact_area.gd
+index bbc8f4bc..2957b4c9 100644
+--- a/scenes/game_elements/props/interact_area/interact_area.gd
++++ b/scenes/game_elements/props/interact_area/interact_area.gd
+@@ -55,9 +55,22 @@ var _indicator: Node2D
+ 
+ 
+ func start_interaction(player: Player, from_right: bool) -> void:
++	_glitchscout_event("interaction_started", {"action": action_text})
+ 	interaction_started.emit(player, from_right)
+ 
+ 
++# Glitchscout QA: game events, through the node so a build without the SDK still runs.
++func _glitchscout_event(event_name: String, data: Dictionary) -> void:
++	var gs := get_node_or_null("/root/Glitchscout")
++	if gs:
++		gs.event(event_name, data)
++
++
++# Glitchscout QA: this area, as an interactable.
++func glitchscout_observe() -> Dictionary:
++	return {"type": action_text, "enabled": not disabled, "required_action": "interact"}
++
++
+ func end_interaction() -> void:
+ 	interaction_ended.emit()
+ 
+@@ -91,6 +104,8 @@ func _notification(what: int) -> void:
+ 
+ 
+ func _ready() -> void:
++	if not Engine.is_editor_hint():
++		add_to_group("glitchscout_interactable")
+ 	collision_layer = 0
+ 	collision_mask = 0
+ 	# Initialise interactable bit in collision_layer
+diff --git a/scenes/globals/game_state/game_state.gd b/scenes/globals/game_state/game_state.gd
+index fd618bf7..1373cfcf 100644
+--- a/scenes/globals/game_state/game_state.gd
++++ b/scenes/globals/game_state/game_state.gd
+@@ -68,6 +68,10 @@ func _ready() -> void:
+ 	if Engine.is_editor_hint():
+ 		return
+ 
++	# Glitchscout QA: a test session starts from a new game, whatever an earlier run saved on this machine.
++	if "--glitchscout-endpoint" in " ".join(OS.get_cmdline_user_args()):
++		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
++
+ 	if ResourceLoader.exists(SAVE_PATH):
+ 		_saved_game = ResourceLoader.load(SAVE_PATH, "", ResourceLoader.CACHE_MODE_REPLACE_DEEP)
+ 
+@@ -237,5 +241,8 @@ func save() -> void:
+ 		return
+ 
+ 	var e := ResourceSaver.save(_saved_game, SAVE_PATH)
++	var gs := get_node_or_null("/root/Glitchscout")
++	if gs and e == OK:
++		gs.event("game_saved", {})
+ 	if e != OK:
+ 		push_error("Failed to save state to %s: %d %s" % [SAVE_PATH, e, error_string(e)])
+diff --git a/scenes/menus/title/components/main_menu.gd b/scenes/menus/title/components/main_menu.gd
+index e30780a1..90396a84 100644
+--- a/scenes/menus/title/components/main_menu.gd
++++ b/scenes/menus/title/components/main_menu.gd
+@@ -14,6 +14,10 @@ signal credits_pressed
+ 
+ 
+ func _ready() -> void:
++	# Glitchscout QA: stable ids for the menu.
++	continue_button.set_meta("glitchscout_id", "menu_continue")
++	start_button.set_meta("glitchscout_id", "menu_start")
++
+ 	# Hide the quit button on the web: handling the quit request requires
+ 	# custom code in the HTML shell that we do not have yet.
+ 	quit_button.visible = OS.get_name() != "Web"

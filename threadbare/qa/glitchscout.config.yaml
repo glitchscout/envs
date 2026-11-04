@@ -1,0 +1,4 @@
+defaults:
+  budget: { max_game_seconds: 45, max_wall_seconds: 300 }
+suites:
+  smoke: "@smoke"
