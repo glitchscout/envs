@@ -8,8 +8,9 @@ scene switcher, so it exercises real churn where Kenney covers stability.
   the game and its assets are never redistributed here. No endorsement by the project is implied.
 - **Integration (`patches/0001-glitchscout-qa.patch`, MPL-2.0 like the files it changes):** enables the Glitchscout SDK,
   declares the movement axis and the game's events, adds `addons/glitchscout_qa` to turn the game's signals into events,
-  makes `InteractArea` observable, gives the menu's buttons stable ids, and removes the saved game at the start of a test
-  session so each test starts from a new game.
+  makes `InteractArea` observable, gives the menu's buttons stable ids, keeps test data in its own user directory (so a
+  real copy of the game on the machine is left alone), and removes that saved game at the start of a test session so
+  each test starts from a new game.
 
 ```bash
 gscout env run threadbare
