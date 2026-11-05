@@ -1,0 +1,13 @@
+diff --git a/scenes/menus/title/components/title_screen.gd b/scenes/menus/title/components/title_screen.gd
+index 7dfe7e4f..2af62526 100644
+--- a/scenes/menus/title/components/title_screen.gd
++++ b/scenes/menus/title/components/title_screen.gd
+@@ -41,7 +41,7 @@ func _on_main_menu_continue_pressed() -> void:
+ func _on_start_pressed() -> void:
+ 	GameState.clear()
+ 
+-	GameState.set_quest(opening_quest)
++	pass # seeded bug start-no-quest (synthetic): the opening quest is never set
+ 	SceneSwitcher.change_to_file_with_transition(
+ 		opening_quest.first_scene, ^"", Transition.Effect.FADE, Transition.Effect.FADE
+ 	)

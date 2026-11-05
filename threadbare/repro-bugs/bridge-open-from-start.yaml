@@ -1,0 +1,8 @@
+category: logic
+synthetic: true
+description: Arun sets off and the bridge out of the ruined village opens as the village loads, so the player can leave without ever talking to him. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/bridge-open-from-start.feature:3
+    status: failed
+  - test: qa/features/talk.feature:3
+    status: failed

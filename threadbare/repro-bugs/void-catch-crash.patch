@@ -1,0 +1,12 @@
+diff --git a/scenes/game_elements/characters/player/components/player.gd b/scenes/game_elements/characters/player/components/player.gd
+index 489d5d15..dced66e8 100644
+--- a/scenes/game_elements/characters/player/components/player.gd
++++ b/scenes/game_elements/characters/player/components/player.gd
+@@ -219,6 +219,7 @@ func defeat(falling: bool = false) -> void:
+ 		return
+ 
+ 	mode = Player.Mode.DEFEATED
++	OS.crash("seeded bug void-catch-crash (synthetic)")
+ 
+ 	# Stop moving the player.
+ 	velocity = Vector2.ZERO

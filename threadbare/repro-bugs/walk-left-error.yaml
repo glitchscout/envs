@@ -1,0 +1,6 @@
+category: script_error
+synthetic: true
+description: walking left calls a method that does not exist, so every step left logs a script error. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/walk-left-error.feature:3
+    status: failed

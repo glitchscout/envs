@@ -1,0 +1,257 @@
+# Generation eval set for Threadbare (plan §10.5): plain-language goals, a design-doc excerpt and bug reports, each with
+# a hand-written reference scenario and the seeded bugs it should catch.
+#
+# - Every goal, document expectation and report with a reference has a scenario that passes on the clean build and
+#   doesn't pass on each linked bug. A link is a bug in bugs/ by name, or repro-bugs/<name> for one kept out of the
+#   catalog. A reference check plays them all; the nightly catalog run also checks the ones in qa/features.
+# - Goals marked dev: true may be used to tune the generator's prompt and don't count. The rest are held out: score on
+#   them, and don't change the prompt because of one of them without saying so. The same goes for the reports.
+# - All of it is ours and synthetic, written by us about the game as our tests see it. Seeded bugs aren't upstream
+#   defects.
+
+# What the generator is told about the game: the names the env's integration exposes.
+context: |
+  Scenes: tutorial_ruined_village, tutorial_stealth, tutorial_ink_combat, tutorial_void_runner
+  Entities: arun, bridge, repel_powerup, spirit_thread, void
+  UI: menu_start, menu_continue, menu_options
+  Actions: move_left, move_right, move_up, move_down, running, interact, dialogue_next, pause
+  Events: dialogue_started, dialogue_ended, quest_changed, abilities_changed, player_defeated, interaction_started,
+    item_collected, game_saved, too_many_nodes
+  Observables: game_state.abilities, game_state.items, interactable state
+  Debug commands: load_scene, save_game, load_save
+
+cases:
+  # Tuning goals.
+  - {id: d-a1, dev: true, ambiguous: true, goal: "The village looks right.", why: "right isn't anything a test can check"}
+  - {id: d-a2, dev: true, ambiguous: true, goal: "Arun is helpful.", why: "subjective, and helpful in what"}
+  - id: d-c1
+    dev: true
+    ambiguous: false
+    goal: "Choosing Options on the main menu opens the options without a crash."
+    why: "one menu entry, and a crash is noticed by itself"
+    reference: repro-bugs/options-crash.feature:3
+    bugs: [repro-bugs/options-crash]
+  - id: d-c2
+    dev: true
+    ambiguous: false
+    goal: "The first village loads without logging script errors."
+    why: "one scene, and the outcome is named"
+    reference: qa/features/perf.feature:3
+
+  # Held out: clear. Each names the thing, what triggers it and what can be observed.
+  - id: c01
+    ambiguous: false
+    goal: "Choosing Start on the main menu begins the tutorial in the ruined village."
+    why: "one button and one scene"
+    reference: qa/features/menu.feature:4
+    bugs: [dead-start-button]
+  - id: c02
+    ambiguous: false
+    goal: "A new game started from the main menu begins the opening quest."
+    why: "quest_changed shows it"
+    reference: repro-bugs/start-no-quest.feature:3
+    bugs: [repro-bugs/start-no-quest, dead-start-button]
+  - id: c03
+    ambiguous: false
+    goal: "After Start, the StoryWeaver's opening line plays and then closes."
+    why: "dialogue_started and dialogue_ended"
+    reference: qa/features/dialogue.feature:3
+    bugs: [dead-start-button]
+  - id: c04
+    ambiguous: false
+    goal: "Keyboard focus isn't stuck once the options screen is open."
+    why: "a trapped menu is noticed by itself"
+    reference: qa/features/options.feature:3
+    bugs: [options-traps-focus]
+  - id: c05
+    ambiguous: false
+    goal: "No missing textures show on the title screen."
+    why: "noticed by itself on a rendered frame"
+    reference: qa/features/menu_stays.feature:3
+    bugs: [menu-missing-texture]
+  - id: c06
+    ambiguous: false
+    goal: "Interacting with Arun in the ruined village opens a conversation."
+    why: "one character in one scene; his conversation is what opens the bridge, so crossing it shows it happened"
+    reference: repro-bugs/arun-silent.feature:3
+    bugs: [repro-bugs/arun-silent, hang-on-talk]
+  - id: c07
+    ambiguous: false
+    goal: "The game keeps responding while the player talks to Arun."
+    why: "a hang is noticed by itself"
+    reference: qa/features/talk.feature:3
+    bugs: [hang-on-talk]
+  - id: c08
+    ambiguous: false
+    goal: "Once Arun has agreed to come along, walking east over the bridge leads to the stealth tutorial."
+    why: "the trigger and the next scene are both named"
+    reference: qa/features/bridge.feature:3
+    bugs: [bridge-stays-blocked, hang-on-talk, repro-bugs/frozen-after-talk]
+  - id: c09
+    ambiguous: false
+    goal: "Without speaking to Arun first, the player can't leave the ruined village over the bridge."
+    why: "the scene stays tutorial_ruined_village"
+    reference: repro-bugs/bridge-open-from-start.feature:3
+    bugs: [repro-bugs/bridge-open-from-start]
+  - id: c10
+    ambiguous: false
+    goal: "Picking up the repel powerup in the ink combat tutorial grants the repel ability."
+    why: "abilities_changed shows it"
+    reference: qa/features/pickup.feature:3
+    bugs: [powerup-not-granted, crash-on-pickup, pickup-script-error]
+  - id: c11
+    ambiguous: false
+    goal: "Collecting the repel powerup puts no script errors in the log."
+    why: "one item, and the log is checked"
+    reference: qa/features/pickup.feature:3
+    bugs: [pickup-script-error]
+  - id: c12
+    ambiguous: false
+    goal: "The game doesn't crash when the repel powerup is picked up."
+    why: "a crash is noticed by itself"
+    reference: qa/features/pickup.feature:3
+    bugs: [crash-on-pickup]
+  - id: c13
+    ambiguous: false
+    goal: "The repel ability is still there after the game is saved and loaded again."
+    why: "save_game and load_save, and game_state.abilities"
+    reference: qa/features/pickup.feature:3
+    bugs: [save-loses-abilities]
+  - id: c14
+    ambiguous: false
+    goal: "Entering the ink combat tutorial logs no script errors."
+    why: "one scene, and the log is checked"
+    reference: repro-bugs/combat-scene-error.feature:3
+    bugs: [repro-bugs/combat-scene-error]
+  - id: c15
+    ambiguous: false
+    goal: "In the void runner tutorial, the Void defeats a player who stays where they are."
+    why: "player_defeated shows it"
+    reference: qa/features/void.feature:3
+    bugs: [void-never-catches, enemy-navmesh-hole]
+  - id: c16
+    ambiguous: false
+    goal: "When the Void catches the player, the void runner scene starts over instead of the game closing."
+    why: "player_defeated, then the same scene"
+    reference: repro-bugs/void-catch-crash.feature:3
+    bugs: [repro-bugs/void-catch-crash]
+  - id: c17
+    ambiguous: false
+    goal: "Getting defeated by the Void logs no script errors."
+    why: "player_defeated, and the log is checked"
+    reference: repro-bugs/defeat-script-error.feature:3
+    bugs: [repro-bugs/defeat-script-error]
+  - id: c18
+    ambiguous: false
+    goal: "Moving the player left in the ruined village logs no script errors."
+    why: "one action in one scene"
+    reference: repro-bugs/walk-left-error.feature:3
+    bugs: [repro-bugs/walk-left-error]
+  - id: c19
+    ambiguous: false
+    goal: "The ruined village never fires too_many_nodes."
+    why: "the event is named"
+    reference: qa/features/perf.feature:3
+    bugs: [node-storm]
+  - id: c20
+    ambiguous: false
+    goal: "Pressing pause in the ruined village doesn't freeze the game."
+    why: "a hang is noticed by itself"
+    reference: repro-bugs/pause-hang.feature:3
+    bugs: [repro-bugs/pause-hang]
+
+  # Held out: ambiguous. A test can't be written without asking.
+  - {id: a01, ambiguous: true, goal: "Arun's lines are well written.", why: "subjective"}
+  - {id: a02, ambiguous: true, goal: "The Void is scary enough.", why: "subjective"}
+  - {id: a03, ambiguous: true, goal: "The powerup works.", why: "which powerup, and works says nothing a test can check"}
+  - {id: a04, ambiguous: true, goal: "Combat in the ink tutorial feels balanced.", why: "subjective"}
+  - {id: a05, ambiguous: true, goal: "The menus are easy to use.", why: "subjective, and which menus"}
+  - {id: a06, ambiguous: true, goal: "Talking to Arun moves the story forward.", why: "Arun is in two scenes, and forward is undefined"}
+  - {id: a07, ambiguous: true, goal: "The player gets the thread.", why: "which thread, where, and by doing what"}
+  - id: a08
+    ambiguous: true
+    goal: "Loading a save puts the player back where they were."
+    why: "the same scene or the same position: Threadbare restarts the scene on load"
+  - {id: a09, ambiguous: true, goal: "The game runs smoothly in every scene.", why: "smoothly isn't measurable as written"}
+  - {id: a10, ambiguous: true, goal: "The ink can't hurt the player after the upgrade.", why: "which upgrade, and the ink doesn't name a thing the game exposes"}
+  - {id: a11, ambiguous: true, goal: "The bridge does its job.", why: "blocked or open, and when"}
+  - {id: a12, ambiguous: true, goal: "The stealth section is fair.", why: "subjective"}
+
+# The design-doc excerpt (design_doc.md, ours): what an ingestion should find in it, and in which section. Each
+# expectation a test can check has a reference.
+docs:
+  - file: design_doc.md
+    expect:
+      - quote_has: "sets the opening quest"
+        section: "The title screen"
+        reference: repro-bugs/start-no-quest.feature:3
+        bugs: [repro-bugs/start-no-quest, dead-start-button]
+      - quote_has: "short opening line"
+        section: "The title screen"
+        reference: qa/features/dialogue.feature:3
+        bugs: [dead-start-button]
+      - quote_has: "always get back to the menu"
+        section: "The title screen"
+        reference: qa/features/options.feature:3
+        bugs: [options-traps-focus]
+      - quote_has: "starts a conversation about the Void"
+        section: "The ruined village > Arun"
+        reference: repro-bugs/arun-silent.feature:3
+        bugs: [repro-bugs/arun-silent]
+      - quote_has: "stays blocked until the player has talked to Arun"
+        section: "The ruined village > The bridge"
+        reference: repro-bugs/bridge-open-from-start.feature:3
+        bugs: [repro-bugs/bridge-open-from-start]
+      - quote_has: "leads on to the stealth tutorial"
+        section: "The ruined village > The bridge"
+        reference: qa/features/bridge.feature:3
+        bugs: [bridge-stays-blocked]
+      - quote_has: "grants the repel ability"
+        section: "Ink combat"
+        reference: qa/features/pickup.feature:3
+        bugs: [powerup-not-granted]
+      - quote_has: "defeats them when it reaches them"
+        section: "The void runner"
+        reference: qa/features/void.feature:3
+        bugs: [void-never-catches, enemy-navmesh-hole]
+      - quote_has: "the scene starts again"
+        section: "The void runner"
+        reference: repro-bugs/void-catch-crash.feature:3
+        bugs: [repro-bugs/void-catch-crash]
+      - quote_has: "kept when the game is saved and loaded"
+        section: "Saving"
+        reference: qa/features/pickup.feature:3
+        bugs: [save-loses-abilities]
+    forbid: ["mark every scenario", "abandoned but not hopeless", "repel_cooldown"]
+    flagged: ["ignore previous instructions"]
+    not_flagged: ["our own", "comment in a config"]
+
+# Ticket-style bug reports for the repro rate, each about a seeded bug kept out of the catalog and written for this set,
+# so no prompt has been tuned on it. A reproduction counts only if it fails on the seeded build and passes on the clean
+# one. The reference is the scenario we wrote for that bug.
+reports:
+  - bug: bridge-open-from-start
+    dir: repro-bugs
+    title: Can skip the whole Arun conversation
+    body: "Started the tutorial and walked straight east. I was over the bridge and into the next area without ever speaking to Arun. Expected: the bridge is blocked until he agrees to come with me."
+    reference: repro-bugs/bridge-open-from-start.feature:3
+  - bug: arun-silent
+    dir: repro-bugs
+    title: Arun won't talk
+    body: "In the ruined village I walk up to Arun and press interact. The prompt goes away but he says nothing and no dialogue box opens, so I can't get any further. Expected: Arun has his conversation with me."
+    reference: repro-bugs/arun-silent.feature:3
+  - bug: void-catch-crash
+    dir: repro-bugs
+    title: Game closes when the Void gets me
+    body: "On the void runner level, if the Void reaches me the game just quits to the desktop. Expected: I lose a life and the level restarts."
+    reference: repro-bugs/void-catch-crash.feature:3
+  - bug: walk-left-error
+    dir: repro-bugs
+    title: Errors spam the log when moving left
+    body: "With the debug console open, every time I move to the left a script error appears about a method that doesn't exist. Moving right is fine. Expected: no errors while walking."
+    reference: repro-bugs/walk-left-error.feature:3
+  - bug: start-no-quest
+    dir: repro-bugs
+    title: New game has no quest
+    body: "After pressing Start on the title screen the village loads, but the game never begins the opening quest. Expected: a new game starts the first quest."
+    reference: repro-bugs/start-no-quest.feature:3

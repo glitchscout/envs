@@ -1,0 +1,14 @@
+diff --git a/scenes/game_logic/walk_behaviors/input_walk_behavior.gd b/scenes/game_logic/walk_behaviors/input_walk_behavior.gd
+index a196dddf..fe07cf73 100644
+--- a/scenes/game_logic/walk_behaviors/input_walk_behavior.gd
++++ b/scenes/game_logic/walk_behaviors/input_walk_behavior.gd
+@@ -62,6 +62,9 @@ func _physics_process(delta: float) -> void:
+ 	)
+ 	var speed := speeds.run_speed if is_input_running else speeds.walk_speed
+ 	input_vector = axis * speed
++	if axis.x < 0:
++		var facing: Variant = character # seeded bug walk-left-error (synthetic): a character has no such method
++		facing.face_left()
+ 
+ 	var step := (
+ 		speeds.stopping_step
