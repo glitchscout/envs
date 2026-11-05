@@ -1,0 +1,15 @@
+diff --git a/scenes/quests/lore_quests/quest_000/1_ruined_village/components/tutorial_ruined_village.gd b/scenes/quests/lore_quests/quest_000/1_ruined_village/components/tutorial_ruined_village.gd
+index 125be27d..84d4f549 100644
+--- a/scenes/quests/lore_quests/quest_000/1_ruined_village/components/tutorial_ruined_village.gd
++++ b/scenes/quests/lore_quests/quest_000/1_ruined_village/components/tutorial_ruined_village.gd
+@@ -7,6 +7,10 @@ extends Node2D
+ @onready var bridge_blocker: StaticBody2D = %BridgeBlocker
+ 
+ 
++func _ready() -> void:
++	start_townie_walking() # seeded bug bridge-open-from-start (synthetic): Arun leaves and the bridge opens at once
++
++
+ func start_townie_walking() -> void:
+ 	# Allow the player to cross the bridge
+ 	bridge_blocker.collision_layer = 0

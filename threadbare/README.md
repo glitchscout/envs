@@ -79,3 +79,22 @@ pay for them, and so their scenarios aren't in the suite.
 | `defeat-script-error` | script_error |
 | `frozen-after-talk` | softlock |
 | `combat-scene-error` | script_error |
+| `bridge-open-from-start` | logic |
+| `arun-silent` | logic |
+| `void-catch-crash` | crash |
+| `walk-left-error` | script_error |
+| `start-no-quest` | logic |
+
+The last five belong to the generation eval set below, and their bug reports are held out: no prompt has been tuned on
+them.
+
+## Generation eval set
+
+`expectations.yaml` is what test generation is measured on for this game: 36 plain-language goals (32 held out, 12 of
+them deliberately ambiguous, and 4 for tuning), the design-doc excerpt in `design_doc.md`, and 5 ticket-style bug reports.
+Every clear goal, every expectation in the excerpt and every report has a hand-written reference scenario and the seeded
+bugs it should catch. Each reference passes on the clean build and doesn't pass on each linked bug. References are
+scenarios from `qa/features/` or `repro-bugs/`, so the suite doesn't grow for them.
+
+The excerpt and the reports are ours, written in our own words about the game as our tests see it. They aren't the game's
+design document or its issue tracker.

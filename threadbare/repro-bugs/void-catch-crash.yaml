@@ -1,0 +1,8 @@
+category: crash
+synthetic: true
+description: the game crashes (OS.crash) when the Void catches the player. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/void-catch-crash.feature:3
+    status: crashed
+  - test: qa/features/void.feature:3
+    status: crashed

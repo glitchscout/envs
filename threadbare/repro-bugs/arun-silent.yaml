@@ -1,0 +1,8 @@
+category: logic
+synthetic: true
+description: talking to Arun ends at once without a word, so the conversation that opens the bridge never happens. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/arun-silent.feature:3
+    status: failed
+  - test: qa/features/bridge.feature:3
+    status: failed

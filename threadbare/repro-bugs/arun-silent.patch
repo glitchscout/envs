@@ -1,0 +1,14 @@
+diff --git a/scenes/game_logic/talk_behavior.gd b/scenes/game_logic/talk_behavior.gd
+index c1bacf02..7fbe96e1 100644
+--- a/scenes/game_logic/talk_behavior.gd
++++ b/scenes/game_logic/talk_behavior.gd
+@@ -71,6 +71,7 @@ func _on_interaction_started(player: Player, _from_right: bool) -> void:
+ 	var extra: Dictionary[String, Node]
+ 	for node: Node in extra_context:
+ 		extra[node.name] = node
+-	DialogueManager.show_dialogue_balloon(dialogue, title, [get_parent(), player, extra])
+-	await DialogueManager.dialogue_ended
++	if get_parent().name != &"TutorialNPC": # seeded bug arun-silent (synthetic): Arun never speaks
++		DialogueManager.show_dialogue_balloon(dialogue, title, [get_parent(), player, extra])
++		await DialogueManager.dialogue_ended
+ 	interact_area.end_interaction()

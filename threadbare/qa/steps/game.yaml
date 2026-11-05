@@ -40,3 +40,7 @@
     scripted:
       - { press: { action: "{action}", hold_ticks: 360 } }
       - { wait: { seconds: 6.5 } }
+# "should stay" makes it hold for the whole run (an invariant), where "should be in scene" holds once.
+- step: the player should stay in scene {scene}
+  kind: then
+  compiles_to: { oracle: { expr: "scene.name == '{scene}'" } }

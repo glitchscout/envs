@@ -1,0 +1,8 @@
+category: logic
+synthetic: true
+description: choosing Start loads the first scene but never sets the opening quest. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/start-no-quest.feature:3
+    status: failed
+  - test: qa/features/menu.feature:4
+    status: failed
