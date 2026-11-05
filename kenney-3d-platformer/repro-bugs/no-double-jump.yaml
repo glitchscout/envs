@@ -1,0 +1,6 @@
+category: traversal
+synthetic: true
+description: the second jump in the air does nothing, so the double jump is gone. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/no-double-jump.feature:3
+    status: failed

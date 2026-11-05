@@ -1,0 +1,8 @@
+category: softlock
+synthetic: true
+description: a conversation never ends as far as the character is concerned, so the player stays stuck in it after the dialogue closes. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/frozen-after-talk.feature:3
+    status: failed
+  - test: qa/features/bridge.feature:3
+    status: failed

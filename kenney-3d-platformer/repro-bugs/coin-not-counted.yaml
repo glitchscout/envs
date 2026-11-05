@@ -1,0 +1,8 @@
+category: logic
+synthetic: true
+description: picking up a coin counts for nothing. The coin goes away, but the count never changes. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/coin-not-counted.feature:3
+    status: failed
+  - test: qa/features/coins.feature:3
+    status: failed

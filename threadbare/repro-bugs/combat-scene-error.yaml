@@ -1,0 +1,8 @@
+category: script_error
+synthetic: true
+description: the ink combat tutorial calls a method that does not exist as it starts, so a script error is logged. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/combat-scene-error.feature:3
+    status: failed
+  - test: qa/features/pickup.feature:3
+    status: failed

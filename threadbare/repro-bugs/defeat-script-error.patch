@@ -1,0 +1,12 @@
+diff --git a/scenes/game_elements/characters/player/components/player.gd b/scenes/game_elements/characters/player/components/player.gd
+--- a/scenes/game_elements/characters/player/components/player.gd
++++ b/scenes/game_elements/characters/player/components/player.gd
+@@ -226,6 +226,8 @@
+ 	player_dust_particles.emitting = false
+ 
+ 	GameState.player.decrement_lives()
++	var state: Variant = GameState.player # seeded bug defeat-script-error (synthetic): the state has no such method
++	state.show_defeat_popup()
+ 
+ 	if falling:
+ 		var tween := create_tween()

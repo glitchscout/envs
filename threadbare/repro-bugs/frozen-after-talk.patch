@@ -1,0 +1,8 @@
+diff --git a/scenes/game_logic/talk_behavior.gd b/scenes/game_logic/talk_behavior.gd
+--- a/scenes/game_logic/talk_behavior.gd
++++ b/scenes/game_logic/talk_behavior.gd
+@@ -73,4 +73,3 @@
+ 		extra[node.name] = node
+ 	DialogueManager.show_dialogue_balloon(dialogue, title, [get_parent(), player, extra])
+ 	await DialogueManager.dialogue_ended
+-	interact_area.end_interaction()

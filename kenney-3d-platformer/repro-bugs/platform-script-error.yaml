@@ -1,0 +1,6 @@
+category: script_error
+synthetic: true
+description: stepping on a falling platform calls a method the player does not have, so a script error is logged and the platform never falls. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/platform-script-error.feature:3
+    status: failed

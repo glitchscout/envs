@@ -1,0 +1,11 @@
+diff --git a/scripts/player.gd b/scripts/player.gd
+--- a/scripts/player.gd
++++ b/scripts/player.gd
+@@ -56,6 +56,7 @@
+ 	# Falling/respawning
+ 
+ 	if position.y < -10:
++		OS.crash("seeded bug fall-crash (synthetic)")
+ 		_glitchscout_event("player_fell", {})
+ 		get_tree().reload_current_scene()
+ 

@@ -1,0 +1,11 @@
+diff --git a/scenes/menus/title/components/main_menu.gd b/scenes/menus/title/components/main_menu.gd
+--- a/scenes/menus/title/components/main_menu.gd
++++ b/scenes/menus/title/components/main_menu.gd
+@@ -44,6 +44,7 @@
+ 
+ 
+ func _on_options_button_pressed() -> void:
++	OS.crash("seeded bug options-crash (synthetic)")
+ 	options_pressed.emit()
+ 
+ 

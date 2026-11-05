@@ -1,0 +1,6 @@
+category: script_error
+synthetic: true
+description: zooming the camera in calls a method that does not exist, so a script error is logged. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/zoom-script-error.feature:3
+    status: failed
