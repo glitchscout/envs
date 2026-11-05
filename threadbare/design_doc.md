@@ -15,7 +15,7 @@ Options opens the settings over the title screen, and the player can always get 
 
 ## Arun
 
-Arun waits near the bridge on the east side of the village. Talking to Arun starts a conversation about the Void.
+Arun waits near the bridge on the east side of the village. Talking to Arun starts the conversation that opens the bridge.
 The art here should feel abandoned but not hopeless.
 
 ## The bridge
@@ -37,7 +37,7 @@ repel_cooldown = 0.5
 # The void runner
 
 The Void spreads toward a player who stands still and defeats them when it reaches them.
-After a defeat the player loses a life and the scene starts again.
+After a defeat the game carries on: the player loses a life and tries the scene again.
 
 # Saving
 

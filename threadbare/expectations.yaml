@@ -71,8 +71,8 @@ cases:
     bugs: [menu-missing-texture]
   - id: c06
     ambiguous: false
-    goal: "Interacting with Arun in the ruined village opens a conversation."
-    why: "one character in one scene; his conversation is what opens the bridge, so crossing it shows it happened"
+    goal: "Talking to Arun is what lets the player leave the ruined village over the bridge."
+    why: "one character, and the stealth tutorial is reached only after his conversation"
     reference: repro-bugs/arun-silent.feature:3
     bugs: [repro-bugs/arun-silent, hang-on-talk]
   - id: c07
@@ -131,8 +131,8 @@ cases:
     bugs: [void-never-catches, enemy-navmesh-hole]
   - id: c16
     ambiguous: false
-    goal: "When the Void catches the player, the void runner scene starts over instead of the game closing."
-    why: "player_defeated, then the same scene"
+    goal: "Being caught by the Void doesn't close the game."
+    why: "player_defeated, and a crash is noticed by itself"
     reference: repro-bugs/void-catch-crash.feature:3
     bugs: [repro-bugs/void-catch-crash]
   - id: c17
@@ -194,7 +194,7 @@ docs:
         section: "The title screen"
         reference: qa/features/options.feature:3
         bugs: [options-traps-focus]
-      - quote_has: "starts a conversation about the Void"
+      - quote_has: "starts the conversation that opens the bridge"
         section: "The ruined village > Arun"
         reference: repro-bugs/arun-silent.feature:3
         bugs: [repro-bugs/arun-silent]
@@ -214,7 +214,7 @@ docs:
         section: "The void runner"
         reference: qa/features/void.feature:3
         bugs: [void-never-catches, enemy-navmesh-hole]
-      - quote_has: "the scene starts again"
+      - quote_has: "the game carries on"
         section: "The void runner"
         reference: repro-bugs/void-catch-crash.feature:3
         bugs: [repro-bugs/void-catch-crash]
