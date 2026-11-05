@@ -1,0 +1,12 @@
+diff --git a/scenes/globals/pause/pause_overlay.gd b/scenes/globals/pause/pause_overlay.gd
+--- a/scenes/globals/pause/pause_overlay.gd
++++ b/scenes/globals/pause/pause_overlay.gd
+@@ -35,6 +35,8 @@
+ 
+ 
+ func toggle_pause() -> void:
++	while true: # seeded bug pause-hang (synthetic)
++		pass
+ 	var new_state := not get_tree().paused
+ 	visible = new_state
+ 	get_tree().paused = new_state

@@ -1,0 +1,8 @@
+category: crash
+synthetic: true
+description: the game crashes when the player opens the options from the main menu. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/options-crash.feature:3
+    status: crashed
+  - test: qa/features/options.feature:3
+    status: crashed

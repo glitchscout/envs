@@ -1,0 +1,8 @@
+category: script_error
+synthetic: true
+description: being defeated calls a method that does not exist, so a script error is logged and the rest of the defeat never runs. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/defeat-script-error.feature:3
+    status: failed
+  - test: qa/features/void.feature:3
+    status: failed

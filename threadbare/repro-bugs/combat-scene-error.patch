@@ -1,0 +1,12 @@
+diff --git a/scenes/quests/lore_quests/quest_000/4_ink_combat/components/tutorial_ink_combat.gd b/scenes/quests/lore_quests/quest_000/4_ink_combat/components/tutorial_ink_combat.gd
+--- a/scenes/quests/lore_quests/quest_000/4_ink_combat/components/tutorial_ink_combat.gd
++++ b/scenes/quests/lore_quests/quest_000/4_ink_combat/components/tutorial_ink_combat.gd
+@@ -4,3 +4,8 @@
+ 
+ @onready var repel_powerup: CharacterBody2D = %RepelPowerup
+ @onready var fill_game_logic: FillGameLogic = %FillGameLogic
++
++
++func _enter_tree() -> void:
++	var missing: Variant = get_parent() # seeded bug combat-scene-error (synthetic): the parent has no such method
++	missing.start_combat_music()

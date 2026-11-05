@@ -1,0 +1,6 @@
+category: hang
+synthetic: true
+description: pausing never returns, so the game stops responding. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/pause-hang.feature:3
+    status: hung

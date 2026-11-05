@@ -1,0 +1,6 @@
+category: crash
+synthetic: true
+description: the game crashes when the player falls off the level, instead of putting them back at the start. Seeded by us, not an upstream bug.
+expect:
+  - test: repro-bugs/fall-crash.feature:3
+    status: crashed

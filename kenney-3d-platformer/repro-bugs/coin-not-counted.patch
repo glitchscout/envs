@@ -1,0 +1,11 @@
+diff --git a/scripts/player.gd b/scripts/player.gd
+--- a/scripts/player.gd
++++ b/scripts/player.gd
+@@ -159,6 +159,7 @@
+ 
+ func collect_coin():
+ 
++	return # seeded bug coin-not-counted (synthetic)
+ 	coins += 1
+ 
+ 	coin_collected.emit(coins)

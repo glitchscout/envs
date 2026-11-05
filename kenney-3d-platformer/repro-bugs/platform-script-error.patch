@@ -1,0 +1,11 @@
+diff --git a/objects/platform_falling.gd b/objects/platform_falling.gd
+--- a/objects/platform_falling.gd
++++ b/objects/platform_falling.gd
+@@ -17,6 +17,7 @@
+ 
+ func _on_body_entered(_body):
+ 	if !falling:
++		_body.shake_camera() # seeded bug platform-script-error (synthetic): the player has no such method
+ 		Audio.play("res://sounds/fall.ogg") # Play sound
+ 		scale = Vector3(1.25, 1, 1.25) # Animate scale
+ 		

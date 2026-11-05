@@ -64,3 +64,18 @@ Performance is checked by node count, through the `too_many_nodes` event: frame 
 test's next step, and a count doesn't depend on how fast the machine is.
 
 A scene step compares the file name without its extension (`tutorial_ruined_village`).
+
+## Bugs kept out of the catalog
+
+`repro-bugs/` holds seeded bugs for measuring how well a bug report can be turned into a reproduction scenario. They work
+like the ones in `bugs/`, and are also synthetic: ours, not upstream defects. Each has a hand-written scenario that ends as its
+`.yaml` says on the seeded build and passes on the clean one. They stay out of `bugs/` so that the catalog run doesn't have to
+pay for them, and so their scenarios aren't in the suite.
+
+| Bug | Category |
+|---|---|
+| `options-crash` | crash |
+| `pause-hang` | hang |
+| `defeat-script-error` | script_error |
+| `frozen-after-talk` | softlock |
+| `combat-scene-error` | script_error |

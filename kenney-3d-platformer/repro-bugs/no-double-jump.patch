@@ -1,0 +1,12 @@
+diff --git a/scripts/player.gd b/scripts/player.gd
+--- a/scripts/player.gd
++++ b/scripts/player.gd
+@@ -151,7 +151,7 @@
+ 
+ 	if jump_single:
+ 		jump_single = false;
+-		jump_double = true;
++		jump_double = false; # seeded bug no-double-jump (synthetic)
+ 	else:
+ 		jump_double = false;
+ 

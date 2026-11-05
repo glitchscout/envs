@@ -34,3 +34,18 @@ gscout env run kenney-3d-platformer --bug landing-script-error
 button down, so a second press of a held button is not a new press.
 
 Godot (the version in `env.yaml`) must be on `PATH` as `godot`.
+
+## Bugs kept out of the catalog
+
+`repro-bugs/` holds seeded bugs for measuring how well a bug report can be turned into a reproduction scenario. They work
+like the ones in `bugs/`, and are also synthetic: ours, not upstream defects. Each has a hand-written scenario that ends as its
+`.yaml` says on the seeded build and passes on the clean one. They stay out of `bugs/` so that the catalog run doesn't have to
+pay for them, and so their scenarios aren't in the suite.
+
+| Bug | Category |
+|---|---|
+| `fall-crash` | crash |
+| `platform-script-error` | script_error |
+| `no-double-jump` | traversal |
+| `zoom-script-error` | script_error |
+| `coin-not-counted` | logic |
