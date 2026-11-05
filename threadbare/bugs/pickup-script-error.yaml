@@ -1,0 +1,6 @@
+category: script_error
+synthetic: true
+description: picking up a powerup calls a method that does not exist, so a script error is logged and the pickup stops. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/pickup.feature:3
+    status: failed

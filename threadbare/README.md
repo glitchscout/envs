@@ -25,6 +25,7 @@ All synthetic: ours, not upstream defects. Each is described in `bugs/<id>.yaml`
 | Bug | Category | Shows as |
 |---|---|---|
 | `crash-on-pickup` | crash | the pickup test ends `crashed` |
+| `pickup-script-error` | script_error | the pickup test ends `failed` |
 | `hang-on-talk` | hang | the talk and bridge tests end `hung` |
 | `bridge-stays-blocked` | softlock | the bridge test ends `failed` |
 | `powerup-not-granted` | logic | the pickup test ends `failed` |
