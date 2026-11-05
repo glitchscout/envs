@@ -1,9 +1,9 @@
 diff --git a/addons/glitchscout_qa/glitchscout_qa.gd b/addons/glitchscout_qa/glitchscout_qa.gd
 new file mode 100644
-index 00000000..83a7917e
+index 00000000..9e695073
 --- /dev/null
 +++ b/addons/glitchscout_qa/glitchscout_qa.gd
-@@ -0,0 +1,152 @@
+@@ -0,0 +1,158 @@
 +# SPDX-License-Identifier: MPL-2.0
 +extends Node
 +## Glitchscout QA: turns the game's own signals into test events and registers the debug commands tests use, so the
@@ -25,6 +25,7 @@ index 00000000..83a7917e
 +const CHECK_EVERY_FRAMES := 60
 +
 +var _frames := 0
++var _loading := false
 +var _player: Player
 +var _player_state: PlayerState
 +
@@ -99,7 +100,9 @@ index 00000000..83a7917e
 +	# Ignoring the cache, as a new process would: replacing updates the live objects in place, so anything the file leaves
 +	# out would keep its value and a save that loses it would look fine.
 +	GameState._saved_game = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP)
++	_loading = true # a test's save round trip doesn't change the quest
 +	GameState.player_changed.emit(old, GameState.player)
++	_loading = false
 +	var player := get_tree().get_first_node_in_group("player") as Node2D
 +	if player and GameState._saved_game.has_meta("glitchscout_position"):
 +		player.global_position = GameState._saved_game.get_meta("glitchscout_position")
@@ -110,7 +113,8 @@ index 00000000..83a7917e
 +	_watch_player_state()
 +	if not GameState.quest:
 +		return
-+	_event("quest_changed", {"quest": GameState.quest.quest.resource_path})
++	if not _loading:
++		_event("quest_changed", {"quest": GameState.quest.quest.resource_path})
 +	var inventory := GameState.quest.inventory
 +	if not inventory.item_collected.is_connected(_on_item_collected):
 +		inventory.item_collected.connect(_on_item_collected)
@@ -119,6 +123,8 @@ index 00000000..83a7917e
 +func _watch_player_state() -> void:
 +	var state := GameState.player
 +	if state and state != _player_state:
++		if _player_state:
++			_player_state.abilities_changed.disconnect(_on_abilities_changed)
 +		_player_state = state
 +		state.abilities_changed.connect(_on_abilities_changed)
 +
