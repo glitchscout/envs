@@ -50,13 +50,17 @@ build is reused and nothing is cloned or rebuilt.
 `bugs/<id>.yaml` describes `bugs/<id>.patch`:
 
 ```yaml
-category: crash                     # crash, hang, softlock, logic, navigation, traversal, UI, ...
+category: crash                     # crash, hang, softlock, out_of_bounds, logic, navigation, save_load, perf, traversal, UI, visual, combat
 synthetic: true                     # required: every seeded bug is ours, never a defect of the upstream game
 description: the game crashes when the coin is picked up
 expect:                             # tests whose status differs from baseline.json with the bug in
   - test: qa/features/coins.feature:4
     status: crashed
 ```
+
+An `expect` entry can also name a `finding`, for a zero-config check that records a finding and leaves the test's status
+alone (`save_load_mismatch`, `ui_focus_trap`, `missing_texture`). A bug can set its own `launch`, for one that only a real
+renderer shows.
 
 Seeded bugs are artificial. They are labelled synthetic in their file names, metadata and any published
 results, so they can't be mistaken for real bugs in the upstream games.

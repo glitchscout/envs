@@ -1,0 +1,6 @@
+category: logic
+synthetic: true
+description: picking up a powerup plays out but never grants the ability. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/pickup.feature:3
+    status: failed

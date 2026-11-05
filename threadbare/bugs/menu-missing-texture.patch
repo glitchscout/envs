@@ -1,0 +1,18 @@
+diff --git a/scenes/menus/title/components/main_menu.gd b/scenes/menus/title/components/main_menu.gd
+index 5a7201a8..d79f5424 100644
+--- a/scenes/menus/title/components/main_menu.gd
++++ b/scenes/menus/title/components/main_menu.gd
+@@ -19,6 +19,13 @@ func _ready() -> void:
+ 	start_button.set_meta("glitchscout_id", "menu_start")
+ 	%OptionsButton.set_meta("glitchscout_id", "menu_options")
+ 
++	var image := Image.create(256, 256, false, Image.FORMAT_RGBA8)
++	image.fill(Color.MAGENTA)
++	var missing := TextureRect.new()
++	missing.texture = ImageTexture.create_from_image(image)
++	missing.position = Vector2(360, 230)
++	add_child(missing)
++
+ 	# Hide the quit button on the web: handling the quit request requires
+ 	# custom code in the HTML shell that we do not have yet.
+ 	quit_button.visible = OS.get_name() != "Web"

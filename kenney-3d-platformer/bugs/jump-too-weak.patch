@@ -1,0 +1,13 @@
+diff --git a/scripts/player.gd b/scripts/player.gd
+index 1cf350c..a63c2c6 100644
+--- a/scripts/player.gd
++++ b/scripts/player.gd
+@@ -7,7 +7,7 @@ signal coin_collected
+ 
+ @export_subgroup("Properties")
+ @export var movement_speed = 250
+-@export var jump_strength = 7
++@export var jump_strength = 1
+ 
+ var movement_velocity: Vector3
+ var rotation_direction: float

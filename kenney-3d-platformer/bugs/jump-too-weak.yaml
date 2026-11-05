@@ -1,0 +1,6 @@
+category: traversal
+synthetic: true
+description: the jump is far too weak to clear anything, so the level can't be traversed. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/traversal.feature:3
+    status: failed

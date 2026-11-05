@@ -18,6 +18,10 @@ platforms, camera) that builds in seconds and behaves almost deterministically.
   - `bugs/landing-script-error`: landing after a jump calls a method the player does not have, so a script error is
     logged on every landing; the jump test must end `failed`.
 
+  - `bugs/jump-too-weak`: the jump can't clear a height; the traversal test must end `failed`.
+  - `bugs/falls-through-floor`: the player's collision is gone and they fall out of the level; the staying-on-the-level
+    test must end `failed`.
+
 ```bash
 gscout env run kenney-3d-platformer
 gscout env run kenney-3d-platformer --bug crash-on-coin

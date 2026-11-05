@@ -1,0 +1,7 @@
+category: UI
+synthetic: true
+description: Options opens a panel whose buttons do nothing and that focus and cancel cannot leave. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/options.feature:3
+    status: passed
+    finding: ui_focus_trap

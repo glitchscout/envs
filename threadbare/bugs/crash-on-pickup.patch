@@ -1,0 +1,12 @@
+diff --git a/scenes/game_elements/props/powerup/components/powerup.gd b/scenes/game_elements/props/powerup/components/powerup.gd
+index 9f98cb00..12e17715 100644
+--- a/scenes/game_elements/props/powerup/components/powerup.gd
++++ b/scenes/game_elements/props/powerup/components/powerup.gd
+@@ -106,6 +106,7 @@ func _on_abilities_changed() -> void:
+ func _on_interact_area_interaction_started(
+ 	_player: Player, _from_right: bool, source: InteractArea
+ ) -> void:
++	OS.crash("seeded bug crash-on-pickup (synthetic)")
+ 	if _tween:
+ 		_tween.kill()
+ 	_tween = create_tween()

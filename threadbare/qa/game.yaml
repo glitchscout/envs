@@ -1,0 +1,4 @@
+# Threadbare's saves keep the player's progress, not what has happened inside a scene: reloading restarts the scene, as
+# Continue does. So a save round trip compares the game state and the player, not each interactable's fields.
+persistence:
+  ignore: [enabled, state, present]

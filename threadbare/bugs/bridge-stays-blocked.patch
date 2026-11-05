@@ -1,0 +1,11 @@
+diff --git a/scenes/quests/lore_quests/quest_000/1_ruined_village/components/tutorial_ruined_village.gd b/scenes/quests/lore_quests/quest_000/1_ruined_village/components/tutorial_ruined_village.gd
+index 125be27d..cc4784dc 100644
+--- a/scenes/quests/lore_quests/quest_000/1_ruined_village/components/tutorial_ruined_village.gd
++++ b/scenes/quests/lore_quests/quest_000/1_ruined_village/components/tutorial_ruined_village.gd
+@@ -9,6 +9,5 @@ extends Node2D
+ 
+ func start_townie_walking() -> void:
+ 	# Allow the player to cross the bridge
+-	bridge_blocker.collision_layer = 0
+ 
+ 	tutorial_npc.walk_path()

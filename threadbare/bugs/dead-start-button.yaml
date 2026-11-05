@@ -1,0 +1,8 @@
+category: UI
+synthetic: true
+description: the main menu Start button does nothing. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/menu.feature:4
+    status: failed
+  - test: qa/features/dialogue.feature:3
+    status: failed

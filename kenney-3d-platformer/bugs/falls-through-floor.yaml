@@ -1,0 +1,6 @@
+category: out_of_bounds
+synthetic: true
+description: the player's collision is gone, so they fall through the level. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/traversal.feature:7
+    status: failed

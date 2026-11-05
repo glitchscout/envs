@@ -1,0 +1,12 @@
+diff --git a/scenes/game_elements/props/powerup/components/powerup.gd b/scenes/game_elements/props/powerup/components/powerup.gd
+index 9f98cb00..8acbfe12 100644
+--- a/scenes/game_elements/props/powerup/components/powerup.gd
++++ b/scenes/game_elements/props/powerup/components/powerup.gd
+@@ -115,7 +115,6 @@ func _on_interact_area_interaction_started(
+ 		DialogueManager.show_dialogue_balloon(dialogue, "", [self])
+ 		await DialogueManager.dialogue_ended
+ 	source.end_interaction()
+-	GameState.player.set_ability(ability, true)
+ 	collected.emit()
+ 
+ 

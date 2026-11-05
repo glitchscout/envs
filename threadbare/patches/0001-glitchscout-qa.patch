@@ -1,25 +1,113 @@
 diff --git a/addons/glitchscout_qa/glitchscout_qa.gd b/addons/glitchscout_qa/glitchscout_qa.gd
 new file mode 100644
-index 00000000..3ec158eb
+index 00000000..83a7917e
 --- /dev/null
 +++ b/addons/glitchscout_qa/glitchscout_qa.gd
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,152 @@
 +# SPDX-License-Identifier: MPL-2.0
 +extends Node
-+## Glitchscout QA: turns the game's own signals into test events, so the patches to upstream files stay small.
-+## Ships in test builds only. Every event goes through the SDK's node, so the game runs the same without it.
++## Glitchscout QA: turns the game's own signals into test events and registers the debug commands tests use, so the
++## patches to upstream files stay small. Ships in test builds only. Everything goes through the SDK's node, so the game
++## runs the same without it.
 +
++const TUTORIAL := "res://scenes/quests/lore_quests/quest_000/"
++## The scenes a test can start in, by the name a test uses. Each starts as a new game on the opening quest.
++const SCENES := {
++	"tutorial_ruined_village": TUTORIAL + "1_ruined_village/tutorial_ruined_village.tscn",
++	"tutorial_ink_combat": TUTORIAL + "4_ink_combat/tutorial_ink_combat.tscn",
++	"tutorial_void_runner": TUTORIAL + "5_void_runner/tutorial_void_runner.tscn",
++}
++const SAVE_SLOT := "user://glitchscout_saves/%s.tres"
++
++## More nodes than any scene in the game has, so a runaway spawn shows. Counted rather than timed: frame times here include
++## waiting for the test's next step, and a count doesn't depend on how fast the machine is.
++const TOO_MANY_NODES := 4000
++const CHECK_EVERY_FRAMES := 60
++
++var _frames := 0
 +var _player: Player
++var _player_state: PlayerState
 +
 +
 +func _ready() -> void:
++	add_to_group("glitchscout_observable")
 +	DialogueManager.dialogue_started.connect(func(_resource: Variant) -> void: _event("dialogue_started"))
 +	DialogueManager.dialogue_ended.connect(func(_resource: Variant) -> void: _event("dialogue_ended"))
 +	GameState.player_changed.connect(_on_player_changed)
 +	get_tree().scene_changed.connect(_on_scene_changed)
++	_watch_player_state()
++	var gs := get_node_or_null("/root/Glitchscout")
++	if gs:
++		gs.register_command("load_scene", _load_scene, "Starts a new game in a scene", {"scene": "string"})
++		gs.register_command("save_game", _save_game, "Saves the game to a slot", {"slot": "string"})
++		gs.register_command("load_save", _load_save, "Loads a save from a slot", {"slot": "string"})
++
++
++## What a save has to bring back.
++func glitchscout_observe() -> Dictionary:
++	var state := GameState.player
++	var items := []
++	if GameState.quest:
++		items = GameState.quest.inventory.items.map(func(item: InventoryItem) -> String: return item.type_name())
++	return {
++		"id": "game_state",
++		"type": "game_state",
++		"abilities": state.abilities if state else 0,
++		"items": items,
++	}
++
++
++func _load_scene(args: Dictionary) -> Variant:
++	var path := str(SCENES.get(str(args.get("scene", "")), ""))
++	if path.is_empty():
++		return "no scene named '%s' (known: %s)" % [args.get("scene", ""), ", ".join(SCENES.keys())]
++	GameState.clear()
++	GameState.set_quest(load(ThreadbareProjectSettings.get_setting(ThreadbareProjectSettings.OPENING_QUEST)))
++	GameState.set_scene(path)
++	# Swapped now rather than with change_scene_to_file, which waits for the next frame: a test's next setup step teleports
++	# the player, who has to be there already.
++	var tree := get_tree()
++	var old := tree.current_scene
++	var fresh: Node = (load(path) as PackedScene).instantiate()
++	if old:
++		old.get_parent().remove_child(old)
++		old.queue_free()
++	tree.root.add_child(fresh)
++	tree.current_scene = fresh
++	tree.scene_changed.emit()
++	return null
++
++
++func _save_game(args: Dictionary) -> Variant:
++	var slot := str(args.get("slot", ""))
++	if not slot.is_valid_filename():
++		return "save_game needs a slot (a plain file name)"
++	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://glitchscout_saves"))
++	# The game's own saves restart a scene from its spawn point. A test round trip has to carry on where it was.
++	var player := get_tree().get_first_node_in_group("player") as Node2D
++	if player:
++		GameState._saved_game.set_meta("glitchscout_position", player.global_position)
++	var err := ResourceSaver.save(GameState._saved_game, SAVE_SLOT % slot)
++	return null if err == OK else "can't save: %s" % error_string(err)
++
++
++func _load_save(args: Dictionary) -> Variant:
++	var path := SAVE_SLOT % str(args.get("slot", ""))
++	if not ResourceLoader.exists(path):
++		return "no save at %s" % path
++	var old := GameState.player
++	# Ignoring the cache, as a new process would: replacing updates the live objects in place, so anything the file leaves
++	# out would keep its value and a save that loses it would look fine.
++	GameState._saved_game = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP)
++	GameState.player_changed.emit(old, GameState.player)
++	var player := get_tree().get_first_node_in_group("player") as Node2D
++	if player and GameState._saved_game.has_meta("glitchscout_position"):
++		player.global_position = GameState._saved_game.get_meta("glitchscout_position")
++	return null
 +
 +
 +func _on_player_changed(_old: PlayerState, _new: PlayerState) -> void:
++	_watch_player_state()
 +	if not GameState.quest:
 +		return
 +	_event("quest_changed", {"quest": GameState.quest.quest.resource_path})
@@ -28,8 +116,28 @@ index 00000000..3ec158eb
 +		inventory.item_collected.connect(_on_item_collected)
 +
 +
++func _watch_player_state() -> void:
++	var state := GameState.player
++	if state and state != _player_state:
++		_player_state = state
++		state.abilities_changed.connect(_on_abilities_changed)
++
++
++func _on_abilities_changed() -> void:
++	_event("abilities_changed", {"abilities": GameState.player.abilities})
++
++
 +func _on_item_collected(item: InventoryItem) -> void:
 +	_event("item_collected", {"item": item.type_name()})
++
++
++func _process(_delta: float) -> void:
++	_frames += 1
++	if _frames % CHECK_EVERY_FRAMES != 0:
++		return
++	var nodes := int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
++	if nodes > TOO_MANY_NODES:
++		_event("too_many_nodes", {"nodes": nodes})
 +
 +
 +func _on_scene_changed() -> void:
@@ -49,7 +157,7 @@ index 00000000..3ec158eb
 +	if gs:
 +		gs.event(event_name, data)
 diff --git a/project.godot b/project.godot
-index a46fbbe9..79f7d809 100644
+index a46fbbe9..2dc80bb3 100644
 --- a/project.godot
 +++ b/project.godot
 @@ -11,6 +11,9 @@ config_version=5
@@ -90,7 +198,7 @@ index a46fbbe9..79f7d809 100644
 +axes={
 +"move": ["move_left", "move_right", "move_up", "move_down"]
 +}
-+events=PackedStringArray("dialogue_started", "dialogue_ended", "quest_changed", "player_defeated", "interaction_started", "item_collected", "game_saved")
++events=PackedStringArray("dialogue_started", "dialogue_ended", "quest_changed", "abilities_changed", "player_defeated", "interaction_started", "item_collected", "game_saved", "too_many_nodes")
 +
  [input]
  
@@ -163,16 +271,17 @@ index fd618bf7..1373cfcf 100644
  	if e != OK:
  		push_error("Failed to save state to %s: %d %s" % [SAVE_PATH, e, error_string(e)])
 diff --git a/scenes/menus/title/components/main_menu.gd b/scenes/menus/title/components/main_menu.gd
-index e30780a1..90396a84 100644
+index e30780a1..5a7201a8 100644
 --- a/scenes/menus/title/components/main_menu.gd
 +++ b/scenes/menus/title/components/main_menu.gd
-@@ -14,6 +14,10 @@ signal credits_pressed
+@@ -14,6 +14,11 @@ signal credits_pressed
  
  
  func _ready() -> void:
 +	# Glitchscout QA: stable ids for the menu.
 +	continue_button.set_meta("glitchscout_id", "menu_continue")
 +	start_button.set_meta("glitchscout_id", "menu_start")
++	%OptionsButton.set_meta("glitchscout_id", "menu_options")
 +
  	# Hide the quit button on the web: handling the quit request requires
  	# custom code in the HTML shell that we do not have yet.
