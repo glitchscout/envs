@@ -4,3 +4,39 @@
 - step: the player taps {action}
   kind: when
   compiles_to: { scripted: [ { press: { action: "{action}", hold_ticks: 2 } } ] }
+# A dialogue line takes two taps, one to finish typing and one to advance, so dismissing a dialogue takes several. A tap
+# with no dialogue open does nothing.
+- step: the player dismisses the dialogue
+  kind: when
+  compiles_to:
+    scripted:
+      - { press: { action: dialogue_next, hold_ticks: 2 } }
+      - { wait: { seconds: 0.4 } }
+      - { press: { action: dialogue_next, hold_ticks: 2 } }
+      - { wait: { seconds: 0.4 } }
+      - { press: { action: dialogue_next, hold_ticks: 2 } }
+      - { wait: { seconds: 0.4 } }
+      - { press: { action: dialogue_next, hold_ticks: 2 } }
+      - { wait: { seconds: 0.4 } }
+      - { press: { action: dialogue_next, hold_ticks: 2 } }
+      - { wait: { seconds: 0.4 } }
+      - { press: { action: dialogue_next, hold_ticks: 2 } }
+      - { wait: { seconds: 0.4 } }
+      - { press: { action: dialogue_next, hold_ticks: 2 } }
+      - { wait: { seconds: 0.4 } }
+      - { press: { action: dialogue_next, hold_ticks: 2 } }
+      - { wait: { seconds: 0.4 } }
+# A press doesn't wait for its own release, so each walk waits it out. A short walk also turns the player to face that
+# way, which is what interacting uses.
+- step: the player steps {action}
+  kind: when
+  compiles_to:
+    scripted:
+      - { press: { action: "{action}", hold_ticks: 20 } }
+      - { wait: { seconds: 0.5 } }
+- step: the player walks {action}
+  kind: when
+  compiles_to:
+    scripted:
+      - { press: { action: "{action}", hold_ticks: 360 } }
+      - { wait: { seconds: 6.5 } }

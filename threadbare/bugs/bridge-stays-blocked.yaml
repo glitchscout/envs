@@ -1,0 +1,6 @@
+category: softlock
+synthetic: true
+description: the character says the way is clear but the bridge stays blocked, so the player can never leave the first scene. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/bridge.feature:3
+    status: failed

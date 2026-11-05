@@ -1,0 +1,9 @@
+diff --git a/scenes/game_elements/characters/enemies/void_spreading_enemy/components/void_spreading_enemy.gd b/scenes/game_elements/characters/enemies/void_spreading_enemy/components/void_spreading_enemy.gd
+index f5176c38..3843deb0 100644
+--- a/scenes/game_elements/characters/enemies/void_spreading_enemy/components/void_spreading_enemy.gd
++++ b/scenes/game_elements/characters/enemies/void_spreading_enemy/components/void_spreading_enemy.gd
+@@ -202,4 +202,3 @@ func _on_player_capture_area_body_entered(body: Node2D) -> void:
+ 	state = State.CAUGHT
+ 
+ 	var player := body as Player
+-	player.defeat(true)

@@ -1,0 +1,12 @@
+diff --git a/scenes/quests/lore_quests/quest_000/5_void_runner/tutorial_void_runner.tscn b/scenes/quests/lore_quests/quest_000/5_void_runner/tutorial_void_runner.tscn
+index ee830aae..725cdb31 100644
+--- a/scenes/quests/lore_quests/quest_000/5_void_runner/tutorial_void_runner.tscn
++++ b/scenes/quests/lore_quests/quest_000/5_void_runner/tutorial_void_runner.tscn
+@@ -781,6 +781,7 @@ scale = Vector2(0.8267846, 0.8332844)
+ sprite_frames = ExtResource("22_af6h4")
+ 
+ [node name="EnemyNavigationRegion" type="NavigationRegion2D" parent="." unique_id=540584431]
++enabled = false
+ editor_description = "The region that the enemy can cross.
+ 
+ This is not done with a navigation layer in the tilemap because we want the enemy to be able to cross some bridges but not others. The plot reason is that islands where people tell stories keep the void at bay. The gameplay reason is that it gives the player breathing room.s"

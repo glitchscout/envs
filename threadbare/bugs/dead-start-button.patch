@@ -1,0 +1,13 @@
+diff --git a/scenes/menus/title/components/main_menu.gd b/scenes/menus/title/components/main_menu.gd
+index 5a7201a8..dbd9a803 100644
+--- a/scenes/menus/title/components/main_menu.gd
++++ b/scenes/menus/title/components/main_menu.gd
+@@ -40,7 +40,7 @@ func _on_continue_button_pressed() -> void:
+ 
+ 
+ func _on_start_button_pressed() -> void:
+-	start_pressed.emit()
++	pass
+ 
+ 
+ func _on_options_button_pressed() -> void:

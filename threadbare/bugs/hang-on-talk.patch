@@ -1,0 +1,13 @@
+diff --git a/scenes/game_logic/talk_behavior.gd b/scenes/game_logic/talk_behavior.gd
+index c1bacf02..36866ae7 100644
+--- a/scenes/game_logic/talk_behavior.gd
++++ b/scenes/game_logic/talk_behavior.gd
+@@ -68,6 +68,8 @@ func _ready() -> void:
+ 
+ 
+ func _on_interaction_started(player: Player, _from_right: bool) -> void:
++	while true:
++		pass
+ 	var extra: Dictionary[String, Node]
+ 	for node: Node in extra_context:
+ 		extra[node.name] = node

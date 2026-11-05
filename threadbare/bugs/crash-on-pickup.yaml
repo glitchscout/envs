@@ -1,0 +1,6 @@
+category: crash
+synthetic: true
+description: the game crashes (OS.crash) when the player picks up a powerup. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/pickup.feature:3
+    status: crashed

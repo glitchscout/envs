@@ -1,0 +1,8 @@
+category: hang
+synthetic: true
+description: talking to a character never returns, so the game stops responding. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/talk.feature:3
+    status: hung
+  - test: qa/features/bridge.feature:3
+    status: hung

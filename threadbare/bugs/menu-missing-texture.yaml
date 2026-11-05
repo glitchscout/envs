@@ -1,0 +1,9 @@
+category: visual
+synthetic: true
+description: a solid magenta square, as an engine draws a missing texture, sits over the main menu. Seeded by us, not an upstream bug.
+# Only a real renderer shows it, so this bug launches windowed instead of headless (xvfb-run on a machine without a display).
+launch: "godot --path {build} --rendering-driver opengl3 --windowed --resolution 1280x720 --fixed-fps 60 --audio-driver Dummy -- --glitchscout-endpoint={endpoint} --glitchscout-token={token}"
+expect:
+  - test: qa/features/menu_stays.feature:3
+    status: passed
+    finding: missing_texture

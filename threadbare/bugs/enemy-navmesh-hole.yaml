@@ -1,0 +1,6 @@
+category: navigation
+synthetic: true
+description: the enemy navigation region is disabled, so the enemy has no path to the player. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/void.feature:3
+    status: failed

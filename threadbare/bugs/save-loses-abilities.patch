@@ -1,0 +1,13 @@
+diff --git a/scenes/globals/game_state/player_state.gd b/scenes/globals/game_state/player_state.gd
+index 2233d3f6..bf516f1b 100644
+--- a/scenes/globals/game_state/player_state.gd
++++ b/scenes/globals/game_state/player_state.gd
+@@ -16,7 +16,7 @@ const MAX_LIVES := 2 ** 53
+ 		emit_changed()
+ 
+ ## Bitfield of elements of Enums.PlayerAbilities
+-@export var abilities: int:
++var abilities: int:
+ 	set(value):
+ 		if abilities != value:
+ 			abilities = value

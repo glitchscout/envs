@@ -4,3 +4,6 @@
 - step: the player taps {action}
   kind: when
   compiles_to: { scripted: [ { press: { action: "{action}", hold_ticks: 2 } } ] }
+- step: the player should rise above {float} within {float} second(s)
+  kind: then
+  compiles_to: { oracle: { expr: "player.position.y > {float:1}" }, within_s: "{float:2}" }

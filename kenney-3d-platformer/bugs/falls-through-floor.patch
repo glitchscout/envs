@@ -1,0 +1,16 @@
+diff --git a/scripts/player.gd b/scripts/player.gd
+index 1cf350c..9998497 100644
+--- a/scripts/player.gd
++++ b/scripts/player.gd
+@@ -27,6 +27,11 @@ var coins = 0
+ 
+ # Functions
+ 
++func _ready():
++	await get_tree().create_timer(2.0).timeout
++	collision_mask = 0
++
++
+ func _physics_process(delta):
+ 
+ 	# Handle functions

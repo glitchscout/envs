@@ -1,0 +1,30 @@
+diff --git a/scenes/menus/title/components/main_menu.gd b/scenes/menus/title/components/main_menu.gd
+index 5a7201a8..88bcdcb4 100644
+--- a/scenes/menus/title/components/main_menu.gd
++++ b/scenes/menus/title/components/main_menu.gd
+@@ -44,7 +44,24 @@ func _on_start_button_pressed() -> void:
+ 
+ 
+ func _on_options_button_pressed() -> void:
+-	options_pressed.emit()
++	button_box.hide()
++	var panel := VBoxContainer.new()
++	add_child(panel)
++	var first := Button.new()
++	first.text = "Sound"
++	first.set_meta("glitchscout_id", "trap_sound")
++	panel.add_child(first)
++	var second := Button.new()
++	second.text = "Music"
++	second.set_meta("glitchscout_id", "trap_music")
++	panel.add_child(second)
++	for button: Button in [first, second]:
++		var other := second if button == first else first
++		button.focus_neighbor_top = button.get_path_to(other)
++		button.focus_neighbor_bottom = button.get_path_to(other)
++		button.focus_neighbor_left = button.get_path_to(button)
++		button.focus_neighbor_right = button.get_path_to(button)
++	first.grab_focus()
+ 
+ 
+ func _on_credits_button_pressed() -> void:

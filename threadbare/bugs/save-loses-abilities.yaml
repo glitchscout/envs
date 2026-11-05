@@ -1,0 +1,7 @@
+category: save_load
+synthetic: true
+description: saving leaves out the abilities the player has, so they are gone after a load. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/pickup.feature:3
+    status: passed
+    finding: save_load_mismatch

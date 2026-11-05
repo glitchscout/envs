@@ -1,4 +1,11 @@
 {
+  "qa/features/bridge.feature:3": "passed",
   "qa/features/dialogue.feature:3": "passed",
-  "qa/features/menu.feature:4": "passed"
+  "qa/features/menu.feature:4": "passed",
+  "qa/features/menu_stays.feature:3": "passed",
+  "qa/features/options.feature:3": "passed",
+  "qa/features/perf.feature:3": "passed",
+  "qa/features/pickup.feature:3": "passed",
+  "qa/features/talk.feature:3": "passed",
+  "qa/features/void.feature:3": "passed"
 }
