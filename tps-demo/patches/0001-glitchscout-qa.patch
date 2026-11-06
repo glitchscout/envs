@@ -1,9 +1,9 @@
 diff --git a/addons/glitchscout_qa/glitchscout_qa.gd b/addons/glitchscout_qa/glitchscout_qa.gd
 new file mode 100644
-index 0000000..6ffc3b4
+index 0000000..fc6f6b1
 --- /dev/null
 +++ b/addons/glitchscout_qa/glitchscout_qa.gd
-@@ -0,0 +1,31 @@
+@@ -0,0 +1,43 @@
 +# SPDX-License-Identifier: MIT
 +extends Node
 +## Glitchscout QA: test-only settings and checks for the TPS demo. Ships in test builds only, and does nothing without
@@ -25,6 +25,18 @@ index 0000000..6ffc3b4
 +	# A window rather than the exclusive fullscreen the game defaults to, and no vsync: a test sets its own frame rate.
 +	Settings.config_file.set_value("video", "display_mode", Window.MODE_WINDOWED)
 +	Settings.config_file.set_value("video", "vsync", DisplayServer.VSYNC_DISABLED)
++	# A preset software rendering (Mesa llvmpipe in CI) draws fast enough to step the game: the 3D view at half
++	# resolution, baked lightmaps rather than voxel GI, and none of the screen-space effects, shadows or fog. The level,
++	# its robots and particles are all still drawn.
++	Settings.config_file.set_value("video", "resolution_scale", 0.5)
++	Settings.config_file.set_value("video", "scale_filter", Viewport.SCALING_3D_MODE_BILINEAR)
++	Settings.config_file.set_value("rendering", "shadow_mapping", false)
++	Settings.config_file.set_value("rendering", "gi_type", Settings.GIType.LIGHTMAP_GI)
++	Settings.config_file.set_value("rendering", "gi_quality", Settings.GIQuality.LOW)
++	Settings.config_file.set_value("rendering", "ssao_quality", -1)
++	Settings.config_file.set_value("rendering", "ssil_quality", -1)
++	Settings.config_file.set_value("rendering", "bloom", false)
++	Settings.config_file.set_value("rendering", "volumetric_fog", false)
 +
 +
 +func _process(_delta: float) -> void:
@@ -187,7 +199,7 @@ index 42b6c3d..047dbef 100644
 +	if gs:
 +		gs.event(event_name, data)
 diff --git a/project.godot b/project.godot
-index a089692..4749903 100644
+index a089692..03e7986 100644
 --- a/project.godot
 +++ b/project.godot
 @@ -15,6 +15,8 @@ config/description="Godot Third Person Shooter with high quality assets and ligh
@@ -208,7 +220,15 @@ index a089692..4749903 100644
  
  [display]
  
-@@ -38,10 +42,22 @@ window/size/fullscreen=true
+@@ -31,17 +35,29 @@ window/size/viewport_height=1080
+ window/hdr/request_hdr_output=true
+ window/stretch/mode="canvas_items"
+ window/stretch/aspect="expand"
+-display_server/driver.linuxbsd="wayland"
++display_server/driver.linuxbsd="x11"
+ window/size/fullscreen=true
+ 
+ [editor]
  
  import/use_multiple_threads=false
  
