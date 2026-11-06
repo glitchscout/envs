@@ -8,12 +8,22 @@ scene switcher, so it exercises real churn where Kenney covers stability.
   the game and its assets are never redistributed here. No endorsement by the project is implied.
 - **Integration (`patches/0001-glitchscout-qa.patch`, MPL-2.0 like the files it changes):** enables the Glitchscout SDK,
   declares the movement axis and the game's events, adds `addons/glitchscout_qa` to turn the game's signals into events,
-  registers `load_scene`, `save_game` and `load_save`, makes `InteractArea` observable, gives the menu's buttons stable ids, keeps test data in its own user directory (so a
+  registers `load_scene`, `save_game` and `load_save` (each save command takes a `slot` or a file `path`, and a save
+  loaded by path opens its scene, as Continue does), makes `InteractArea` observable, marks `ThrowingEnemy` and `Guard`
+  as threats, gives the menu's buttons stable ids, keeps test data in its own user directory (so a
   real copy of the game on the machine is left alone), and removes that saved game at the start of a test session so
   each test starts from a new game.
 
 ```bash
 gscout env run threadbare
+```
+
+With the env built (`gscout env build threadbare` prints where), `gscout doctor` scores the integration: the menu has no
+player, so pass a level and a combat scene. It passes every item except navmesh and navigation links (Threadbare has no
+navigation regions) and exits 0.
+
+```bash
+gscout doctor --godot godot --project <build> --headless --root threadbare --scene tutorial_ruined_village --scene tutorial_ink_combat
 ```
 
 Godot (the version in `env.yaml`) must be on `PATH` as `godot`, and `git-lfs` must be installed.
