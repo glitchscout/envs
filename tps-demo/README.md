@@ -22,10 +22,10 @@ gscout env run tps-demo
 gscout env run tps-demo --bug robot-blind
 ```
 
-Godot (the version in `env.yaml`) must be on `PATH` as `godot`. Runs are rendered with the Compatibility renderer, so
-on a machine without a display (CI) they need one: `xvfb-run -a -s "-screen 0 1280x720x24" gscout env run tps-demo`,
-with Mesa's software GL installed. The game's own renderer, Forward+, needs Vulkan, which software rendering draws too
-slowly for a nightly run; the Compatibility renderer logs a few warnings about the effects it leaves out.
+Godot (the version in `env.yaml`) must be on `PATH` as `godot`. Runs are rendered in a window with the Compatibility
+renderer, which logs a few warnings about the effects it leaves out; the game's own renderer, Forward+, needs Vulkan or
+Metal. They need a GPU: software GL (Mesa's llvmpipe under `xvfb-run`) draws this level at a few frames a second, so
+the longer tests run out of time. The nightly run uses a Mac.
 
 ## Tests
 
