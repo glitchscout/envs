@@ -1,9 +1,9 @@
 diff --git a/addons/glitchscout_qa/glitchscout_qa.gd b/addons/glitchscout_qa/glitchscout_qa.gd
 new file mode 100644
-index 00000000..9e695073
+index 00000000..36d2aaeb
 --- /dev/null
 +++ b/addons/glitchscout_qa/glitchscout_qa.gd
-@@ -0,0 +1,158 @@
+@@ -0,0 +1,187 @@
 +# SPDX-License-Identifier: MPL-2.0
 +extends Node
 +## Glitchscout QA: turns the game's own signals into test events and registers the debug commands tests use, so the
@@ -18,6 +18,9 @@ index 00000000..9e695073
 +	"tutorial_void_runner": TUTORIAL + "5_void_runner/tutorial_void_runner.tscn",
 +}
 +const SAVE_SLOT := "user://glitchscout_saves/%s.tres"
++## Where a save given by path (a save fixture, from `gscout fixture capture`) passes through: Godot picks a resource's
++## format by its extension, and a fixture is a .sav.
++const PATH_STAGING := "user://glitchscout_saves/_path.tres"
 +
 +## More nodes than any scene in the game has, so a runaway spawn shows. Counted rather than timed: frame times here include
 +## waiting for the test's next step, and a count doesn't depend on how fast the machine is.
@@ -40,8 +43,8 @@ index 00000000..9e695073
 +	var gs := get_node_or_null("/root/Glitchscout")
 +	if gs:
 +		gs.register_command("load_scene", _load_scene, "Starts a new game in a scene", {"scene": "string"})
-+		gs.register_command("save_game", _save_game, "Saves the game to a slot", {"slot": "string"})
-+		gs.register_command("load_save", _load_save, "Loads a save from a slot", {"slot": "string"})
++		gs.register_command("save_game", _save_game, "Saves the game to a slot or a file", {"slot": "string", "path": "string"})
++		gs.register_command("load_save", _load_save, "Loads a save from a slot or a file", {"slot": "string", "path": "string"})
 +
 +
 +## What a save has to bring back.
@@ -65,8 +68,13 @@ index 00000000..9e695073
 +	GameState.clear()
 +	GameState.set_quest(load(ThreadbareProjectSettings.get_setting(ThreadbareProjectSettings.OPENING_QUEST)))
 +	GameState.set_scene(path)
-+	# Swapped now rather than with change_scene_to_file, which waits for the next frame: a test's next setup step teleports
-+	# the player, who has to be there already.
++	_swap_to(path)
++	return null
++
++
++## Swaps to a scene now rather than with change_scene_to_file, which waits for the next frame: a test's next setup step
++## teleports the player, who has to be there already.
++func _swap_to(path: String) -> void:
 +	var tree := get_tree()
 +	var old := tree.current_scene
 +	var fresh: Node = (load(path) as PackedScene).instantiate()
@@ -76,24 +84,40 @@ index 00000000..9e695073
 +	tree.root.add_child(fresh)
 +	tree.current_scene = fresh
 +	tree.scene_changed.emit()
-+	return null
 +
 +
 +func _save_game(args: Dictionary) -> Variant:
 +	var slot := str(args.get("slot", ""))
-+	if not slot.is_valid_filename():
-+		return "save_game needs a slot (a plain file name)"
++	var file := str(args.get("path", ""))
++	if file.is_empty() and not slot.is_valid_filename():
++		return "save_game needs a slot (a plain file name) or a path"
 +	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://glitchscout_saves"))
 +	# The game's own saves restart a scene from its spawn point. A test round trip has to carry on where it was.
 +	var player := get_tree().get_first_node_in_group("player") as Node2D
 +	if player:
 +		GameState._saved_game.set_meta("glitchscout_position", player.global_position)
-+	var err := ResourceSaver.save(GameState._saved_game, SAVE_SLOT % slot)
-+	return null if err == OK else "can't save: %s" % error_string(err)
++	var err := ResourceSaver.save(GameState._saved_game, PATH_STAGING if file else SAVE_SLOT % slot)
++	if err != OK:
++		return "can't save: %s" % error_string(err)
++	if file:
++		DirAccess.make_dir_recursive_absolute(file.get_base_dir())
++		err = DirAccess.copy_absolute(ProjectSettings.globalize_path(PATH_STAGING), file)
++		if err != OK:
++			return "can't write %s: %s" % [file, error_string(err)]
++	return null
 +
 +
 +func _load_save(args: Dictionary) -> Variant:
 +	var path := SAVE_SLOT % str(args.get("slot", ""))
++	var file := str(args.get("path", ""))
++	if file:
++		if not FileAccess.file_exists(file):
++			return "no save at %s" % file
++		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://glitchscout_saves"))
++		var err := DirAccess.copy_absolute(file, ProjectSettings.globalize_path(PATH_STAGING))
++		if err != OK:
++			return "can't read %s: %s" % [file, error_string(err)]
++		path = PATH_STAGING
 +	if not ResourceLoader.exists(path):
 +		return "no save at %s" % path
 +	var old := GameState.player
@@ -103,6 +127,11 @@ index 00000000..9e695073
 +	_loading = true # a test's save round trip doesn't change the quest
 +	GameState.player_changed.emit(old, GameState.player)
 +	_loading = false
++	# A save loaded into a fresh launch (a save fixture) opens its scene, as Continue does; a round trip within the
++	# scene stays where it is.
++	var current := get_tree().current_scene
++	if GameState.scene and (not current or current.scene_file_path != GameState.scene.path):
++		_swap_to(GameState.scene.path)
 +	var player := get_tree().get_first_node_in_group("player") as Node2D
 +	if player and GameState._saved_game.has_meta("glitchscout_position"):
 +		player.global_position = GameState._saved_game.get_meta("glitchscout_position")
@@ -209,6 +238,47 @@ index a46fbbe9..2dc80bb3 100644
  [input]
  
  ui_accept={
+diff --git a/scenes/game_elements/characters/enemies/guard/components/guard.gd b/scenes/game_elements/characters/enemies/guard/components/guard.gd
+index a602ac6a..f9a35f5c 100644
+--- a/scenes/game_elements/characters/enemies/guard/components/guard.gd
++++ b/scenes/game_elements/characters/enemies/guard/components/guard.gd
+@@ -133,8 +133,14 @@ func _get_configuration_warnings() -> PackedStringArray:
+ 	return warnings
+ 
+ 
++# Glitchscout QA: this guard, as a threat.
++func glitchscout_observe() -> Dictionary:
++	return {"type": "guard", "state": State.keys()[state].to_lower()}
++
++
+ func _ready() -> void:
+ 	if not Engine.is_editor_hint():
++		add_to_group("glitchscout_threat")
+ 		# Player awareness is configured and started empty.
+ 		if player_awareness:
+ 			player_awareness.max_value = time_to_detect_player
+diff --git a/scenes/game_elements/characters/enemies/throwing_enemy/components/throwing_enemy.gd b/scenes/game_elements/characters/enemies/throwing_enemy/components/throwing_enemy.gd
+index 57c1c2a4..4d375723 100644
+--- a/scenes/game_elements/characters/enemies/throwing_enemy/components/throwing_enemy.gd
++++ b/scenes/game_elements/characters/enemies/throwing_enemy/components/throwing_enemy.gd
+@@ -167,11 +167,17 @@ func _get_configuration_warnings() -> PackedStringArray:
+ 	return warnings
+ 
+ 
++# Glitchscout QA: this enemy, as a threat.
++func glitchscout_observe() -> Dictionary:
++	return {"type": "throwing_enemy", "state": State.keys()[_get_state()].to_lower()}
++
++
+ func _ready() -> void:
+ 	_initial_position = position
+ 	_set_sprite_frames(sprite_frames)
+ 	if Engine.is_editor_hint():
+ 		return
++	add_to_group("glitchscout_threat")
+ 	_player = get_tree().get_first_node_in_group("player") as Node2D
+ 	if is_instance_valid(_player):
+ 		var direction: Vector2 = projectile_marker.global_position.direction_to(
 diff --git a/scenes/game_elements/props/interact_area/interact_area.gd b/scenes/game_elements/props/interact_area/interact_area.gd
 index bbc8f4bc..b9403e2a 100644
 --- a/scenes/game_elements/props/interact_area/interact_area.gd
