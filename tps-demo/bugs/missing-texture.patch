@@ -1,0 +1,19 @@
+diff --git a/level/level.gd b/level/level.gd
+index aa6041c..daff895 100644
+--- a/level/level.gd
++++ b/level/level.gd
+@@ -44,6 +44,14 @@ func _ready() -> void:
+ 		multiplayer.peer_disconnected.connect(del_player)
+ 
+ 	_glitchscout_event("level_ready", {})
++	# A HUD panel whose texture failed to load, drawn in magenta as a missing texture is.
++	var hud := CanvasLayer.new()
++	var panel := ColorRect.new()
++	panel.color = Color.MAGENTA
++	panel.position = Vector2(24, 24)
++	panel.size = Vector2(160, 90)
++	hud.add_child(panel)
++	add_child(hud)
+ 
+ 
+ func setup_sdfgi() -> void:

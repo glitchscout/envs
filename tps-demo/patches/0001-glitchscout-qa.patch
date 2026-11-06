@@ -1,0 +1,233 @@
+diff --git a/addons/glitchscout_qa/glitchscout_qa.gd b/addons/glitchscout_qa/glitchscout_qa.gd
+new file mode 100644
+index 0000000..6ffc3b4
+--- /dev/null
++++ b/addons/glitchscout_qa/glitchscout_qa.gd
+@@ -0,0 +1,31 @@
++# SPDX-License-Identifier: MIT
++extends Node
++## Glitchscout QA: test-only settings and checks for the TPS demo. Ships in test builds only, and does nothing without
++## the SDK's node.
++
++## More nodes than the level ever has, so a runaway spawn shows. Counted rather than timed: a count doesn't depend on how
++## fast the machine renders.
++const TOO_MANY_NODES := 8000
++const CHECK_EVERY_FRAMES := 60
++
++var _frames := 0
++var _warned := false
++
++
++func _ready() -> void:
++	if not get_node_or_null("/root/Glitchscout"):
++		set_process(false)
++		return
++	# A window rather than the exclusive fullscreen the game defaults to, and no vsync: a test sets its own frame rate.
++	Settings.config_file.set_value("video", "display_mode", Window.MODE_WINDOWED)
++	Settings.config_file.set_value("video", "vsync", DisplayServer.VSYNC_DISABLED)
++
++
++func _process(_delta: float) -> void:
++	_frames += 1
++	if _warned or _frames % CHECK_EVERY_FRAMES != 0:
++		return
++	var count := get_tree().get_node_count()
++	if count > TOO_MANY_NODES:
++		_warned = true
++		get_node("/root/Glitchscout").event("too_many_nodes", {"nodes": count})
+diff --git a/enemies/red_robot/red_robot.gd b/enemies/red_robot/red_robot.gd
+index 3887830..e98b11b 100644
+--- a/enemies/red_robot/red_robot.gd
++++ b/enemies/red_robot/red_robot.gd
+@@ -55,6 +55,7 @@ var blast_scene: PackedScene = preload("res://enemies/red_robot/laser/impact_eff
+ 
+ 
+ func _ready() -> void:
++	add_to_group(&"glitchscout_threat") # Glitchscout QA
+ 	orientation = global_transform
+ 	orientation.origin = Vector3()
+ 	$AnimationTree.active = true
+@@ -83,6 +84,7 @@ func hit() -> void:
+ 	animation_tree[param] = 1
+ 	hit_sound.play()
+ 	health -= 1
++	_glitchscout_event("robot_hit", {"robot": str(name), "health": health})
+ 	if health == 0:
+ 		dead = true
+ 		animation_tree.active = false
+@@ -99,6 +101,7 @@ func hit() -> void:
+ 
+ 		explosion_sound.play()
+ 		exploded.emit()
++		_glitchscout_event("robot_exploded", {"robot": str(name)})
+ 
+ 		if multiplayer.is_server():
+ 			await get_tree().create_timer(10.0).timeout
+@@ -281,3 +284,21 @@ func _on_area_body_exited(body: Node3D) -> void:
+ 	if body is Player:
+ 		player = null
+ 		state = State.IDLE
++
++
++# Glitchscout QA: what a test reads off a robot.
++func glitchscout_observe() -> Dictionary:
++	var states := ["idle", "approach", "aim", "shooting"]
++	return {
++		"id": "robot_" + str(name).trim_prefix("Robot"),
++		"type": "red_robot",
++		"health": health,
++		"state": "dead" if dead else states[state],
++	}
++
++
++# Glitchscout QA: game events, through the node so a build without the SDK still runs.
++func _glitchscout_event(event_name: String, data: Dictionary) -> void:
++	var gs := get_node_or_null("/root/Glitchscout")
++	if gs:
++		gs.event(event_name, data)
+diff --git a/level/level.gd b/level/level.gd
+index 83d5c83..aa6041c 100644
+--- a/level/level.gd
++++ b/level/level.gd
+@@ -30,9 +30,11 @@ func _ready() -> void:
+ 			spawn_robot(child)
+ 
+ 		# Then spawn already connected players at random location
+-		randomize()
+ 		var spawn_points = player_spawn_points.get_children()
+-		spawn_points.shuffle()
++		# Glitchscout QA: the first spawn point under test, so every run starts in the same place.
++		if not get_node_or_null("/root/Glitchscout"):
++			randomize()
++			spawn_points.shuffle()
+ 		add_player(1, spawn_points.pop_front())
+ 		for id in multiplayer.get_peers():
+ 			add_player(id, spawn_points.pop_front())
+@@ -41,6 +43,8 @@ func _ready() -> void:
+ 		multiplayer.peer_connected.connect(add_player)
+ 		multiplayer.peer_disconnected.connect(del_player)
+ 
++	_glitchscout_event("level_ready", {})
++
+ 
+ func setup_sdfgi() -> void:
+ 	world_environment.environment.sdfgi_enabled = true
+@@ -96,6 +100,8 @@ func setup_lightmapgi() -> void:
+ func spawn_robot(spawn_point) -> void:
+ 	var robot: CharacterBody3D = RedRobot.instantiate()
+ 	robot.transform = spawn_point.transform
++	# Glitchscout QA: a robot is named after its spawn point (Robot1 to Robot4), so a test can name it.
++	robot.name = "Robot" + str(spawn_point.name).trim_prefix("Marker3D")
+ 	robot.exploded.connect(_respawn_robot.bind(spawn_point))
+ 	spawned_nodes.add_child(robot, true)
+ 
+@@ -125,3 +131,10 @@ func _input(input_event: InputEvent) -> void:
+ 	if input_event.is_action_pressed(&"quit"):
+ 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+ 		quit.emit()
++
++
++# Glitchscout QA: game events, through the node so a build without the SDK still runs.
++func _glitchscout_event(event_name: String, data: Dictionary) -> void:
++	var gs := get_node_or_null("/root/Glitchscout")
++	if gs:
++		gs.event(event_name, data)
+diff --git a/main/main.gd b/main/main.gd
+index bd99a9d..8072853 100644
+--- a/main/main.gd
++++ b/main/main.gd
+@@ -5,8 +5,12 @@ func _ready() -> void:
+ 	multiplayer.server_relay = false
+ 	if DisplayServer.get_name() == "headless":
+ 		Engine.max_fps = 60
+-	randomize()
+ 	get_window().mode = Settings.config_file.get_value("video", "display_mode")
++	# Glitchscout QA: a test session starts in the level, offline, and leaves the random seed to the test.
++	if get_node_or_null("/root/Glitchscout"):
++		change_scene_to_packed(ResourceLoader.load("res://level/level.tscn"))
++		return
++	randomize()
+ 	go_to_main_menu()
+ 
+ 
+diff --git a/player/player.gd b/player/player.gd
+index 42b6c3d..047dbef 100644
+--- a/player/player.gd
++++ b/player/player.gd
+@@ -44,6 +44,7 @@ var motion := Vector2()
+ 
+ 
+ func _ready() -> void:
++	add_to_group(&"player") # Glitchscout QA
+ 	# Pre-initialize orientation transform.
+ 	orientation = player_model.global_transform
+ 	orientation.origin = Vector3()
+@@ -198,6 +199,7 @@ func shoot() -> void:
+ 	muzzle_particle.emitting = true
+ 	fire_cooldown.start()
+ 	sound_effect_shoot.play()
++	_glitchscout_event("player_shot", {})
+ 	add_camera_shake_trauma(0.35)
+ 
+ 
+@@ -209,3 +211,15 @@ func hit() -> void:
+ @rpc("call_local")
+ func add_camera_shake_trauma(amount: float) -> void:
+ 	player_input.camera_camera.add_trauma(amount)
++
++
++# Glitchscout QA: what a test reads off the player. The player can't be hurt, so there is no health.
++func glitchscout_observe() -> Dictionary:
++	return {"state_flags": ["aiming"] if player_input.aiming else []}
++
++
++# Glitchscout QA: game events, through the node so a build without the SDK still runs.
++func _glitchscout_event(event_name: String, data: Dictionary) -> void:
++	var gs := get_node_or_null("/root/Glitchscout")
++	if gs:
++		gs.event(event_name, data)
+diff --git a/project.godot b/project.godot
+index a089692..4749903 100644
+--- a/project.godot
++++ b/project.godot
+@@ -15,6 +15,8 @@ config/description="Godot Third Person Shooter with high quality assets and ligh
+ run/main_scene="res://main/main.tscn"
+ config/features=PackedStringArray("4.7")
+ config/icon="res://icon.png"
++config/use_custom_user_dir=true
++config/custom_user_dir_name="glitchscout_tps_demo"
+ 
+ [audio]
+ 
+@@ -23,6 +25,8 @@ buses/default_bus_layout="uid://vtdn63d3ksc2"
+ [autoload]
+ 
+ Settings="*res://menu/settings.gd"
++Glitchscout="*res://addons/glitchscout/glitchscout.gd"
++GlitchscoutQA="*res://addons/glitchscout_qa/glitchscout_qa.gd"
+ 
+ [display]
+ 
+@@ -38,10 +42,22 @@ window/size/fullscreen=true
+ 
+ import/use_multiple_threads=false
+ 
++[editor_plugins]
++
++enabled=PackedStringArray("res://addons/glitchscout/plugin.cfg")
++
+ [filesystem]
+ 
+ import/blender/enabled=false
+ 
++[glitchscout]
++
++; Glitchscout QA: the movement actions as one 2D axis (negative x, positive x, negative y, positive y).
++axes={
++"move": ["move_left", "move_right", "move_forward", "move_back"]
++}
++events=PackedStringArray("level_ready", "player_shot", "robot_hit", "robot_exploded", "too_many_nodes")
++
+ [input]
+ 
+ ui_accept={

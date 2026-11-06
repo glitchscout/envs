@@ -1,0 +1,6 @@
+category: crash
+synthetic: true
+description: the game crashes (OS.crash) as soon as the player fires a shot. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/shoot.feature:3
+    status: crashed

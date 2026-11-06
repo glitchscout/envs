@@ -1,0 +1,6 @@
+category: combat
+synthetic: true
+description: a robot notices the player and aims, but its line-of-sight check looks for itself instead of the player, so it never shoots. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/robots.feature:11
+    status: failed
