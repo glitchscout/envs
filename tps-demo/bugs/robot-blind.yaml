@@ -1,0 +1,8 @@
+category: combat
+synthetic: true
+description: robots never notice the player, however close they come, so they never approach or shoot. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/robots.feature:4
+    status: failed
+  - test: qa/features/robots.feature:11
+    status: failed

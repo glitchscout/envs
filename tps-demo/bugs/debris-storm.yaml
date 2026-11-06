@@ -1,0 +1,6 @@
+category: perf
+synthetic: true
+description: the level spawns ten thousand empty nodes when it starts, more than the level itself has. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/perf.feature:3
+    status: failed

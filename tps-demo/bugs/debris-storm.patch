@@ -1,0 +1,13 @@
+diff --git a/level/level.gd b/level/level.gd
+index aa6041c..a5a209e 100644
+--- a/level/level.gd
++++ b/level/level.gd
+@@ -44,6 +44,8 @@ func _ready() -> void:
+ 		multiplayer.peer_disconnected.connect(del_player)
+ 
+ 	_glitchscout_event("level_ready", {})
++	for i in 10000:
++		spawned_nodes.add_child(Node3D.new())
+ 
+ 
+ func setup_sdfgi() -> void:

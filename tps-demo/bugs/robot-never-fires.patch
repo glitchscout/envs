@@ -1,0 +1,13 @@
+diff --git a/enemies/red_robot/red_robot.gd b/enemies/red_robot/red_robot.gd
+index e98b11b..8a113b0 100644
+--- a/enemies/red_robot/red_robot.gd
++++ b/enemies/red_robot/red_robot.gd
+@@ -234,7 +234,7 @@ func _physics_process(delta: float) -> void:
+ 			var ray_origin: Vector3 = ray_from.global_transform.origin
+ 			var ray_to: Vector3 = target_position + Vector3.UP
+ 			var col: Dictionary = get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(ray_origin, ray_to, 0xFFFFFFFF, [self]))
+-			if not col.is_empty() and col.collider == player:
++			if not col.is_empty() and col.collider == self:
+ 				state = State.SHOOTING
+ 				shoot_countdown = SHOOT_WAIT
+ 				play_shoot.rpc()

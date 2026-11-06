@@ -1,0 +1,7 @@
+category: visual
+synthetic: true
+description: a HUD panel in the level's top-left corner has lost its texture and is drawn in flat magenta, as a missing texture is. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/smoke.feature:4
+    status: passed
+    finding: missing_texture

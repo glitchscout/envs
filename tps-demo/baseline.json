@@ -1,0 +1,8 @@
+{
+  "qa/features/perf.feature:3": "passed",
+  "qa/features/robots.feature:11": "passed",
+  "qa/features/robots.feature:4": "passed",
+  "qa/features/shoot.feature:3": "passed",
+  "qa/features/smoke.feature:4": "passed",
+  "qa/features/walk.feature:4": "passed"
+}

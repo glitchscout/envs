@@ -1,0 +1,6 @@
+category: script_error
+synthetic: true
+description: every frame the player walks, the player script calls a method it doesn't have, so a script error is logged. Seeded by us, not an upstream bug.
+expect:
+  - test: qa/features/walk.feature:4
+    status: failed

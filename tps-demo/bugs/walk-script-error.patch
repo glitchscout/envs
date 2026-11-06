@@ -1,0 +1,12 @@
+diff --git a/player/player.gd b/player/player.gd
+index 047dbef..a747759 100644
+--- a/player/player.gd
++++ b/player/player.gd
+@@ -147,6 +147,7 @@ func apply_input(delta: float) -> void:
+ 		# Convert orientation to quaternions for interpolating rotation.
+ 		var target: Vector3 = camera_x * motion.x + camera_z * motion.y
+ 		if target.length() > 0.001:
++			call(&"update_footsteps", target)
+ 			var q_from: Quaternion = orientation.basis.get_rotation_quaternion()
+ 			var q_to: Quaternion = Basis.looking_at(target).get_rotation_quaternion()
+ 			# Interpolate current rotation with desired one.

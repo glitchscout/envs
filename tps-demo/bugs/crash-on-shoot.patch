@@ -1,0 +1,12 @@
+diff --git a/player/player.gd b/player/player.gd
+index 047dbef..3d5ba43 100644
+--- a/player/player.gd
++++ b/player/player.gd
+@@ -200,6 +200,7 @@ func shoot() -> void:
+ 	fire_cooldown.start()
+ 	sound_effect_shoot.play()
+ 	_glitchscout_event("player_shot", {})
++	OS.crash("seeded bug crash-on-shoot (synthetic)")
+ 	add_camera_shake_trauma(0.35)
+ 
+ 
