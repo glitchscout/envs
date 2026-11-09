@@ -100,11 +100,12 @@ them.
 
 ## Generation eval set
 
-`expectations.yaml` is what test generation is measured on for this game: 36 plain-language goals (32 held out, 12 of
-them deliberately ambiguous, and 4 for tuning), the design-doc excerpt in `design_doc.md`, and 5 ticket-style bug reports.
+`expectations.yaml` is what test generation is measured on for this game: 46 plain-language goals (32 held out, 12 of
+them deliberately ambiguous, and 14 for tuning), the design-doc excerpt in `design_doc.md`, and 5 ticket-style bug reports.
 Every clear goal, every expectation in the excerpt and every report has a hand-written reference scenario and the seeded
 bugs it should catch. Each reference passes on the clean build and doesn't pass on each linked bug. References are
-scenarios from `qa/features/` or `repro-bugs/`, so the suite doesn't grow for them.
+scenarios from `qa/features/` or `repro-bugs/`, so the suite doesn't grow for them; the ten tuning goals added for the
+generation gates have theirs in `dev-goals/`.
 
 The excerpt and the reports are ours, written in our own words about the game as our tests see it. They aren't the game's
 design document or its issue tracker.
