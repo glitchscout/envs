@@ -37,6 +37,68 @@ cases:
     goal: "The first village loads without logging script errors."
     why: "one scene, and the outcome is named"
     reference: qa/features/perf.feature:3
+  # Tuning goals for the generation gates (validity and false failures). Their references are in dev-goals/, outside the
+  # suite, and link no seeded bug. tutorial_stealth isn't among them: load_scene can't open it, only the bridge can.
+  - id: d-c3
+    dev: true
+    ambiguous: false
+    goal: "Moving up and then down in the ink combat area keeps the log free of script errors."
+    why: "two named moves in one scene, and the outcome is named"
+    reference: dev-goals/tuning.feature:5
+  - id: d-c4
+    dev: true
+    ambiguous: false
+    goal: "The void runner level opens without any script error."
+    why: "one scene, and the outcome is named"
+    reference: dev-goals/tuning.feature:12
+  - id: d-c5
+    dev: true
+    ambiguous: false
+    goal: "Pressing interact with nothing in reach, in the void runner level, raises no script error."
+    why: "one action in one scene"
+    reference: dev-goals/tuning.feature:17
+  - id: d-c6
+    dev: true
+    ambiguous: false
+    goal: "While the opening line plays, the game stays in the ruined village."
+    why: "one scene, checked for the whole wait"
+    reference: dev-goals/tuning.feature:24
+  - id: d-c7
+    dev: true
+    ambiguous: false
+    goal: "A long walk to the right in the ink combat area raises no script error."
+    why: "one named move in one scene"
+    reference: dev-goals/tuning.feature:29
+  - id: d-c8
+    dev: true
+    ambiguous: false
+    goal: "Standing still for five seconds in the ink combat area never defeats the player."
+    why: "player_defeated shows it, and the time is given"
+    reference: dev-goals/tuning.feature:35
+  - id: d-c9
+    dev: true
+    ambiguous: false
+    goal: "Sprinting right in the void runner level raises no script error."
+    why: "running and a named move in one scene"
+    reference: dev-goals/tuning.feature:40
+  - id: d-c10
+    dev: true
+    ambiguous: false
+    goal: "Loading the void runner level puts the player in tutorial_void_runner."
+    why: "one scene, named"
+    reference: dev-goals/tuning.feature:47
+  - id: d-c11
+    dev: true
+    ambiguous: false
+    goal: "Loading the ink combat area puts the player in tutorial_ink_combat."
+    why: "one scene, named"
+    reference: dev-goals/tuning.feature:52
+  - id: d-c12
+    dev: true
+    ambiguous: false
+    goal: "Three seconds in the ink combat area pass without a too_many_nodes event."
+    why: "one event, and the time is given"
+    reference: dev-goals/tuning.feature:57
 
   # Held out: clear. Each names the thing, what triggers it and what can be observed.
   - id: c01
