@@ -2,3 +2,11 @@
 # Continue does. So a save round trip compares the game state and the player, not each interactable's fields.
 persistence:
   ignore: [enabled, state, present]
+
+# Threadbare boots into an intro dialogue over the main menu, and the menu takes no choice until it is dismissed. Every
+# generated test starts here (as a Background): a test that opens a scene does that first, so these steps only matter on
+# the menu.
+start:
+  - When the player waits 1 second
+  - And the player taps "dialogue_next"
+  - And the player waits 3 seconds
