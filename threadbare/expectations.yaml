@@ -99,6 +99,14 @@ cases:
     goal: "Three seconds in the ink combat area pass without a too_many_nodes event."
     why: "one event, and the time is given"
     reference: dev-goals/tuning.feature:57
+  # Tuning goals for asking: failures a tester notices without being told how. They have no reference: they tune
+  # whether the generator asks, not the tests it writes.
+  - {id: d-p1, dev: true, ambiguous: false, goal: "Running into the bridge in the ruined village doesn't stall the game.", why: "a stall is noticed by itself"}
+  - {id: d-p2, dev: true, ambiguous: false, goal: "No placeholder graphics appear in the void runner level.", why: "noticed by itself on a rendered frame"}
+  - {id: d-p3, dev: true, ambiguous: false, goal: "The player can move between every main menu button with the keyboard.", why: "a menu that holds focus is noticed by itself"}
+  - {id: d-p4, dev: true, ambiguous: false, goal: "Every button on the main menu does something when pressed.", why: "a control with no effect is noticed by itself"}
+  - {id: d-p5, dev: true, ambiguous: true, goal: "The stealth tutorial runs smoothly.", why: "smoothly isn't anything a test can check"}
+  - {id: d-p6, dev: true, ambiguous: true, goal: "Nothing breaks in the village.", why: "which failures count, and doing what"}
 
   # Held out: clear. Each names the thing, what triggers it and what can be observed.
   - id: c01
