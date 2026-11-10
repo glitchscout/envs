@@ -58,3 +58,28 @@ Feature: Tuning goals' references
     Given the player is in scene "tutorial_ink_combat"
     When the player waits 3 seconds
     Then the event "too_many_nodes" should not occur
+
+  Scenario: Walking toward the bridge in the ruined village
+    Given the player is in scene "tutorial_ruined_village"
+    When the player dismisses the dialogue
+    And the player walks "move_right"
+    Then no script errors should be logged
+
+  Scenario: The void runner tutorial draws for a while
+    Given the player is in scene "tutorial_void_runner"
+    When the player waits 3 seconds
+    Then no script errors should be logged
+
+  Scenario: The main menu is reached and held
+    When the player waits 1 second
+    And the player taps "dialogue_next"
+    And the player waits 3 seconds
+    Then no script errors should be logged
+
+  Scenario: A main menu button is used
+    When the player waits 1 second
+    And the player taps "dialogue_next"
+    And the player waits 3 seconds
+    And the player chooses "menu_options"
+    And the player waits 1 second
+    Then no script errors should be logged
