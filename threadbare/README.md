@@ -9,8 +9,8 @@ scene switcher, so it exercises real churn where Kenney covers stability.
 - **Integration (`patches/0001-glitchscout-qa.patch`, MPL-2.0 like the files it changes):** enables the Glitchscout SDK,
   declares the movement axis and the game's events, adds `addons/glitchscout_qa` to turn the game's signals into events,
   registers `load_scene`, `save_game` and `load_save` (each save command takes a `slot` or a file `path`, and a save
-  loaded by path opens its scene, as Continue does), makes `InteractArea` observable, marks `ThrowingEnemy` and `Guard`
-  as threats, has the player report the `in_dialogue` state flag while a dialogue is open, gives the menu's buttons
+  loaded by path opens its scene, as Continue does), makes `InteractArea` observable, marks `ThrowingEnemy`, `Guard`
+  and the Void (`VoidSpreadingEnemy`, with the id `void`) as threats, has the player report the `in_dialogue` state flag while a dialogue is open, gives the menu's buttons
   stable ids, keeps test data in its own user directory (so a real copy of the game on the machine is left alone), and
   removes that saved game at the start of a test session so each test starts from a new game.
 
