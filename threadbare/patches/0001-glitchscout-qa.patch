@@ -286,6 +286,31 @@ index 57c1c2a4..4d375723 100644
  	_player = get_tree().get_first_node_in_group("player") as Node2D
  	if is_instance_valid(_player):
  		var direction: Vector2 = projectile_marker.global_position.direction_to(
+diff --git a/scenes/game_elements/characters/enemies/void_spreading_enemy/components/void_spreading_enemy.gd b/scenes/game_elements/characters/enemies/void_spreading_enemy/components/void_spreading_enemy.gd
+index f5176c3..f7c4625 100644
+--- a/scenes/game_elements/characters/enemies/void_spreading_enemy/components/void_spreading_enemy.gd
++++ b/scenes/game_elements/characters/enemies/void_spreading_enemy/components/void_spreading_enemy.gd
+@@ -127,6 +127,11 @@ func _get_configuration_warnings() -> PackedStringArray:
+ 	return warnings
+ 
+ 
++# Glitchscout QA: the Void, as a threat a test can name.
++func glitchscout_observe() -> Dictionary:
++	return {"id": "void", "type": "void", "state": State.keys()[state].to_lower()}
++
++
+ func _ready() -> void:
+ 	idle_patrol_path = idle_patrol_path
+ 	state = state
+@@ -135,6 +140,8 @@ func _ready() -> void:
+ 	if Engine.is_editor_hint():
+ 		set_process(false)
+ 		set_physics_process(false)
++	else:
++		add_to_group("glitchscout_threat")
+ 
+ 
+ func start(detected_node: Node2D) -> void:
 diff --git a/scenes/game_elements/characters/player/components/player.gd b/scenes/game_elements/characters/player/components/player.gd
 index 489d5d1..ab1bf0f 100644
 --- a/scenes/game_elements/characters/player/components/player.gd
