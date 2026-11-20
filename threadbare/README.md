@@ -9,11 +9,11 @@ scene switcher, so it exercises real churn where Kenney covers stability.
 - **Integration (`patches/0001-glitchscout-qa.patch`, MPL-2.0 like the files it changes):** enables the Glitchscout SDK,
   declares the movement axis and the game's events, adds `addons/glitchscout_qa` to turn the game's signals into events,
   registers `load_scene`, `save_game` and `load_save` (each save command takes a `slot` or a file `path`, and a save
-  loaded by path opens its scene, as Continue does), makes `InteractArea` observable, marks `ThrowingEnemy`, `Guard`
-  and the Void (`VoidSpreadingEnemy`, with the id `void`) as threats, has the player report the `in_dialogue` state
-  flag while a dialogue is open, gives the menu's buttons stable ids, keeps test data in its own user directory (so a
-  real copy of the game on the machine is left alone), and removes that saved game at the start of a test session so
-  each test starts from a new game.
+  loaded by path opens its scene, as Continue does), makes `InteractArea` observable, marks `ThrowingEnemy`, `Guard` and
+  the Void (`VoidSpreadingEnemy`, with the id `void`) as threats, has the player report the `in_dialogue` state flag
+  while a dialogue is open, gives the menu's buttons stable ids, names the things a test can stand by (see Notes for
+  tests), keeps test data in its own user directory (so a real copy of the game on the machine is left alone), and
+  removes that saved game at the start of a test session so each test starts from a new game.
 
 ```bash
 gscout env run threadbare
@@ -75,6 +75,23 @@ Performance is checked by node count, through the `too_many_nodes` event: frame 
 test's next step, and a count doesn't depend on how fast the machine is.
 
 A scene step compares the file name without its extension (`tutorial_ruined_village`).
+
+`Given the player is at "<name>"` places the player by name, in a scene that has it:
+
+| Name | Is | In |
+|---|---|---|
+| `arun` | the `InteractArea` of the Arun the player starts beside (`OnTheGround/TutorialNPC`) | the four scenes tests use |
+| `spirit_thread` | the thread's `InteractArea`, disabled until Arun reveals it | `tutorial_void_runner` |
+| `void` | the Void | `tutorial_void_runner` |
+| `repel_powerup` | the powerup's `InteractArea`, and a `glitchscout_marker` a step to its left | `tutorial_ink_combat` |
+| `bridge` | a `glitchscout_marker` at the bridge's village end, west of Arun and of what blocks it | `tutorial_ruined_village` |
+
+`addons/glitchscout_qa` gives those `InteractArea`s their names as ids when a scene opens, and adds the markers. By an
+id alone the player is put in reach of the thing, not on it; at a marker, on the marker. The bridge is tiles, with
+nothing to stand beside, so it is only a marker. The powerup has both: the spot the SDK finds beside it is behind it,
+where the player faces away from it, so its marker says where to stand. Every other interactable is still known by its
+node path from the scene's root, as is the second Arun in the scenes where he also waits at the far end
+(`OnTheGround/TutorialNPC2`, in `tutorial_stealth` and `tutorial_void_runner`): a name is one thing in a scene.
 
 ## Bugs kept out of the catalog
 
