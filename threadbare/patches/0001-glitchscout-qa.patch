@@ -1,9 +1,9 @@
 diff --git a/addons/glitchscout_qa/glitchscout_qa.gd b/addons/glitchscout_qa/glitchscout_qa.gd
 new file mode 100644
-index 00000000..36d2aaeb
+index 00000000..d9bf60e7
 --- /dev/null
 +++ b/addons/glitchscout_qa/glitchscout_qa.gd
-@@ -0,0 +1,194 @@
+@@ -0,0 +1,231 @@
 +# SPDX-License-Identifier: MPL-2.0
 +extends Node
 +## Glitchscout QA: turns the game's own signals into test events and registers the debug commands tests use, so the
@@ -16,6 +16,22 @@ index 00000000..36d2aaeb
 +	"tutorial_ruined_village": TUTORIAL + "1_ruined_village/tutorial_ruined_village.tscn",
 +	"tutorial_ink_combat": TUTORIAL + "4_ink_combat/tutorial_ink_combat.tscn",
 +	"tutorial_void_runner": TUTORIAL + "5_void_runner/tutorial_void_runner.tscn",
++}
++## The interactables a test can name, by the path of their InteractArea from the scene's root; the rest are known by
++## that path. Arun is the one the player starts beside: a scene with a second one, waiting at its far end, leaves that
++## one unnamed, since a name is one thing in a scene.
++const NAMES := {
++	"OnTheGround/TutorialNPC/InteractArea": "arun",
++	"OnTheGround/RepelPowerup/InteractArea": "repel_powerup",
++	"OnTheGround/SpiritThread/InteractArea": "spirit_thread",
++}
++## The places a test can name, by scene: where the player is put, rather than beside an interactable of that name. The
++## bridge is tiles, with nothing to stand beside: its place is the village end, short of what blocks it until Arun has
++## been talked to. The powerup is wide, and the spot the SDK finds beside it is behind it, where the player faces away
++## from it: its place is in front of it instead, a step to its left.
++const PLACES := {
++	"tutorial_ruined_village": {"bridge": Vector2(2490, 164)},
++	"tutorial_ink_combat": {"repel_powerup": Vector2(130, 295)},
 +}
 +const SAVE_SLOT := "user://glitchscout_saves/%s.tres"
 +## Where a save given by path (a save fixture, from `gscout fixture capture`) passes through: Godot picks a resource's
@@ -183,10 +199,31 @@ index 00000000..36d2aaeb
 +
 +
 +func _on_scene_changed() -> void:
++	_name_things()
 +	var player := get_tree().get_first_node_in_group("player") as Player
 +	if player and player != _player:
 +		_player = player
 +		player.mode_changed.connect(_on_player_mode_changed)
++
++
++## Gives the scene's named interactables their ids, and adds its named places as markers.
++func _name_things() -> void:
++	var scene := get_tree().current_scene
++	if not scene:
++		return
++	for path: String in NAMES:
++		var area := scene.get_node_or_null(path)
++		if area:
++			area.set_meta("glitchscout_id", NAMES[path])
++	var places: Dictionary = PLACES.get(scene.scene_file_path.get_file().get_basename(), {})
++	for place: String in places:
++		if scene.has_node(place):
++			continue
++		var marker := Marker2D.new()
++		marker.name = place
++		marker.position = places[place]
++		marker.add_to_group("glitchscout_marker")
++		scene.add_child(marker)
 +
 +
 +func _on_player_mode_changed(mode: Player.Mode) -> void:
@@ -326,10 +363,10 @@ index 489d5d1..ab1bf0f 100644
 +	var qa := get_node_or_null("/root/GlitchscoutQA")
 +	return {"state_flags": ["in_dialogue"]} if qa and qa.in_dialogue else {}
 diff --git a/scenes/game_elements/props/interact_area/interact_area.gd b/scenes/game_elements/props/interact_area/interact_area.gd
-index bbc8f4bc..b9403e2a 100644
+index bbc8f4bc..88a3c73b 100644
 --- a/scenes/game_elements/props/interact_area/interact_area.gd
 +++ b/scenes/game_elements/props/interact_area/interact_area.gd
-@@ -55,9 +55,29 @@ var _indicator: Node2D
+@@ -55,9 +55,33 @@ var _indicator: Node2D
  
  
  func start_interaction(player: Player, from_right: bool) -> void:
@@ -344,22 +381,26 @@ index bbc8f4bc..b9403e2a 100644
 +		gs.event(event_name, data)
 +
 +
-+# Glitchscout QA: this area, as an interactable.
++# Glitchscout QA: this area, as an interactable. One a test can name has that name as its id (the glitchscout_id the QA
++# addon gives it); the rest are known by their node path.
 +func glitchscout_observe() -> Dictionary:
 +	var script: Script = get_parent().get_script()
 +	var type := script.get_global_name() if script else &""
-+	return {
++	var info := {
 +		"type": str(type) if type else "interactable",
 +		"state": "disabled" if disabled else "available",
 +		"enabled": not disabled,
 +		"required_action": "interact",
 +	}
++	if has_meta("glitchscout_id"):
++		info["id"] = str(get_meta("glitchscout_id"))
++	return info
 +
 +
  func end_interaction() -> void:
  	interaction_ended.emit()
  
-@@ -91,6 +111,8 @@ func _notification(what: int) -> void:
+@@ -91,6 +115,8 @@ func _notification(what: int) -> void:
  
  
  func _ready() -> void:
