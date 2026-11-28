@@ -3,6 +3,12 @@
 persistence:
   ignore: [enabled, state, present]
 
+# A dialogue line types itself out: a tap of dialogue_next finishes it, the next moves on. The built-in "the player
+# dismisses the dialogue" taps it until the player isn't in_dialogue any more, and the bot does the same when a dialogue
+# holds it up, so nothing here counts taps.
+dialogue:
+  advance: dialogue_next
+
 # Threadbare boots into an intro dialogue over the main menu, and the menu takes no choice until it is dismissed. Every
 # generated test starts here (as a Background): a test that opens a scene does that first, so these steps only matter on
 # the menu.
